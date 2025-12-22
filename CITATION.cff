@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it."
+type: software
+title: "mt5-en-sr-latin-books"
+authors:
+  - family-names: "Mihajlovic"
+    given-names: "Marko"
+    affiliation: "Singidunum University, Belgrade, Serbia"
+year: 2025
+license: MIT
+repository-code: "https://github.com/mihajlov39547/mt5-en-sr-latin-books"
+url: "https://github.com/mihajlov39547/mt5-en-sr-latin-books"
+preferred-citation:
+  type: software
+  title: "mt5-en-sr-latin-books"
+  authors:
+    - family-names: "Mihajlovic"
+      given-names: "Marko"
+      affiliation: "Singidunum University, Belgrade, Serbia"
+  year: 2025
+  url: "https://github.com/mihajlov39547/mt5-en-sr-latin-books"
+  repository-code: "https://github.com/mihajlov39547/mt5-en-sr-latin-books"
+  license: MIT

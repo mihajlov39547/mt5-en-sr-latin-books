@@ -10,7 +10,7 @@ This repository includes:
 
 ---
 
-## Repository structure
+## 📁 Repository structure
 
 ```
 .
@@ -31,7 +31,7 @@ This repository includes:
 
 ---
 
-## Datasets
+## 📦 Datasets
 
 ### Parallel translation (supervised)
 
@@ -70,7 +70,7 @@ Format:
 
 ---
 
-## Baseline (current)
+## 🧪 Baseline (current)
 
 Baseline definition:
 - Train direction: **EN → SR**
@@ -109,7 +109,7 @@ Checkpoint robustness:
 
 ---
 
-## Data pipeline
+## 🧰 Data pipeline
 
 Intended flow:
 
@@ -133,7 +133,7 @@ python create_serbian_corpus.py
 
 ---
 
-## Training (Colab-first)
+## 🚀 Training (Colab-first)
 
 The core training script is `colab_train_t5.py`.
 
@@ -224,7 +224,7 @@ At the end of training:
 
 ---
 
-## Validation / benchmarking
+## ✅ Validation / benchmarking
 
 ### Full evaluation on the held-out test split
 
@@ -256,7 +256,7 @@ python /content/drive/MyDrive/T5/colab_validate_t5.py \
 
 ---
 
-## Additional Strategies (TODO roadmap)
+## 🗺️ Additional Strategies (TODO roadmap)
 
 The baseline is intentionally simple. Below are the planned strategies and what “done” should look like.
 
@@ -340,7 +340,7 @@ What to report:
 
 ---
 
-## Evaluation design (important for fair comparisons)
+## 📊 Evaluation design (important for fair comparisons)
 
 Dataset is heavily literary. Everyday concepts (e.g., “train station / bus station”) may be rare or absent. So strategies often won’t fix out-of-domain prompts unless you add data that contains those concepts.
 
@@ -352,6 +352,31 @@ Report both clearly as: in-domain vs out-of-domain.
 
 ---
 
-## License
+## 📖 Citation
+
+If you use this dataset/repository, please cite:
+
+`mihajlovic2025mihajlovic_mt5_en_sr_latin_books`
+
+BibTeX:
+
+```bibtex
+@software{mihajlovic2025mihajlovic_mt5_en_sr_latin_books,
+  author       = {Mihajlovic, Marko},
+  title        = {mt5-en-sr-latin-books},
+  year         = {2025},
+  publisher    = {GitHub},
+  url          = {https://github.com/mihajlov39547/mt5-en-sr-latin-books},
+  note         = {Singidunum University, Belgrade, Serbia},
+}
+```
+
+APA:
+
+Mihajlovic, M. (2025). *mt5-en-sr-latin-books* [Computer software]. GitHub. https://github.com/mihajlov39547/mt5-en-sr-latin-books
+
+This repository also includes `CITATION.cff` for GitHub’s “Cite this repository” feature.
+
+## 📄 License
 
 MIT License. See the [LICENSE](LICENSE) file.
