@@ -1,0 +1,412 @@
+[
+  {
+    "filename": "Adventures.txt",
+    "stem": "Adventures",
+    "title": "The Adventures of Ferdinand Count Fathom",
+    "author": "Tobias Smollett",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "You and I, my good friend, have often deliberated on the difficulty of writing such a dedication as might gratify the selfcomplacency of a patron, without exposing the author to the ridicule or censure of the public and I think we generally agreed that the task was altogether impracticable.Indeed, this was one of the few subjects on which we have always thought in the same manner.",
+    "opening_line_sr": "Ti i ja, moj dobri prijatelju, često smo razmišljali o poteškoćama u pisanju takve posvete koja bi mogla zadovoljiti samozadovoljstvo pokrovitelja, a da autora ne izložimo podsmehu ili cenzuri javnosti i mislim da smo se generalno složili da je taj zadatak potpuno neizvodljiv. Zaista, ovo je bila jedna od retkih tema o kojoj smo uvek razmišljali na isti način."
+  },
+  {
+    "filename": "Alice.txt",
+    "stem": "Alice",
+    "title": "Alice's Adventures in Wonderland",
+    "author": "Lewis Carroll",
+    "confidence": "high",
+    "method": "opening-pattern:Alice",
+    "opening_line_en": "Down the Rabbit Hole Alice was beginning to get very tired of sitting by her sister on the bank, and of having nothing to do once or twice she had peeped into the book her sister was reading, but it had no pictures or conversations in it, and what is the use of a book, thought Alice without pictures or conversations?",
+    "opening_line_sr": "Niz zečju rupu Alisa je počela da se umori od sedenja pored sestre na obali, i od toga što jednom ili dvaput nije imala šta da radi, zavirila je u knjigu koju je njena sestra čitala, ali u njoj nije bilo slika ili razgovora, a kakva je korist od knjige, pomisli Alisa bez slika i razgovora?"
+  },
+  {
+    "filename": "Anne.txt",
+    "stem": "Anne",
+    "title": "Anne of Green Gables",
+    "author": "L. M. Montgomery",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "MRS. Rachel Lynde lived just where the Avonlea main road dipped down into a little hollow, fringed with alders and ladies eardrops and traversed by a brook that had its source away back in the woods of the old Cuthbert place it was reputed to be an intricate, headlong brook in its earlier course through those woods, with dark secrets of pool and cascade but by the time it reached Lyndes Hollow it was a quiet, wellconducted little stream, for not even a brook could run past Rachel Lyndes door without due regard for decency and decorum it probably was conscious that Rachel was sitting at her window, keeping a sharp eye on everything that passed, from brooks and children up, and that if she noticed anything odd or out of place she would never rest until she had ferreted out the whys and wherefores thereof.",
+    "opening_line_sr": "Gospođa Rejčel Lind je živela baš tamo gde se glavni put Avonlea spuštao u malu udubinu, obrubljenu johom i ženskim ušnicama i preko koje je prolazio potok koji je izvirao daleko u šumi starog mesta Cuthbert za koje se smatralo da je zamršen, strmoglav potok u svom ranijem toku kroz te šume,  sa mračnim tajnama bazena i kaskade, ali dok je stigao do Linds Holoua, to je bio tih, dobro vođen potok, jer čak ni potok nije mogao da prođe pored vrata Rejčel Lind bez dužnog poštovanja pristojnosti i pristojnosti.  od potoka i dece naviše, i da ako primeti nešto čudno ili neumjesno, nikada se neće smiriti dok ne otkrije zašto i zašto."
+  },
+  {
+    "filename": "Blue.txt",
+    "stem": "Blue",
+    "title": "The Blue Castle",
+    "author": "L. M. Montgomery",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "If it had not rained on a certain May morning Valancy Stirlings whole life would have been entirely different.",
+    "opening_line_sr": "Da nije padala kiša jednog majskog jutra, Valansi Stirlings ceo život bi bio sasvim drugačiji."
+  },
+  {
+    "filename": "Brothers.txt",
+    "stem": "Brothers",
+    "title": "The Brothers Karamazov",
+    "author": "Fyodor Dostoevsky",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Alexey Fyodorovitch Karamazov was the third son of Fyodor Pavlovitch Karamazov, a land owner well known in our district in his own day, and still remembered among us owing to his gloomy and tragic death, which happened thirteen years ago, and which I shall describe in its proper place.",
+    "opening_line_sr": "Aleksej Fjodorovič Karamazov bio je treći sin Fjodora Pavloviča Karamazova, zemljoposednika koji je bio dobro poznat u našem okrugu u svoje vreme, i koji se još uvek pamti među nama zbog njegove sumorne i tragične smrti, koja se dogodila pre trinaest godina, i koju ću opisati na pravom mestu."
+  },
+  {
+    "filename": "Carol.txt",
+    "stem": "Carol",
+    "title": "A Christmas Carol",
+    "author": "Charles Dickens",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "MARLEY was dead to begin with.",
+    "opening_line_sr": "Marli je bio mrtav za početak."
+  },
+  {
+    "filename": "Count.txt",
+    "stem": "Count",
+    "title": "The Count of Monte Cristo",
+    "author": "Alexandre Dumas",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Marseilles The Arrival On the 24th of February, 1815, the lookout at Notre Dame de la Garde signalled the threemaster, the Pharaon from Smyrna, Trieste, and Naples.",
+    "opening_line_sr": "Marsej Dolazak 24. februara 1815. godine, vidikovac na Notre Dame de la Garde signalizirao je trojcu, faraona iz Smirne, Trsta i Napulja."
+  },
+  {
+    "filename": "Cranford.txt",
+    "stem": "Cranford",
+    "title": "Cranford",
+    "author": "Elizabeth Gaskell",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "In the first place, Cranford is in possession of the Amazons all the holders of houses above a certain rent are women.",
+    "opening_line_sr": "Na prvom mestu, Krenford je u posedu Amazonki, svi vlasnici kuća iznad određene zakupnine su žene."
+  },
+  {
+    "filename": "Crime.txt",
+    "stem": "Crime",
+    "title": "Crime and Punishment",
+    "author": "Fyodor Dostoevsky",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "On an exceptionally hot evening early in July a young man came out of the garret in which he lodged in S. Place and walked slowly, as though in hesitation, towards K. bridge.",
+    "opening_line_sr": "Jedne izuzetno vrele večeri početkom jula mladić je izašao iz potkrovlja u kojem je boravio na S. Placeu i polako, kao da je oklevao, krenuo ka K. mostu."
+  },
+  {
+    "filename": "Dracula.txt",
+    "stem": "Dracula",
+    "title": "Dracula",
+    "author": "Bram Stoker",
+    "confidence": "high",
+    "method": "opening-pattern:Dracula",
+    "opening_line_en": "Left Munich at 835 P. M., on 1st May, arriving at Vienna early next morning should have arrived at 646, but train was an hour late.",
+    "opening_line_sr": "Napustio Minhen u 835 uveče, 1. maja, stigao u Beč rano sledećeg jutra trebalo je da stigne u 646, ali voz je kasnio sat vremena."
+  },
+  {
+    "filename": "Enchanted.txt",
+    "stem": "Enchanted",
+    "title": "The Enchanted April",
+    "author": "Elizabeth von Arnim",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "It began in a Womans Club in London on a February afternoonan uncomfortable club, and a miserable afternoonwhen Wilkins, who had come down from Hampstead to shop and had lunched at her club, took up The Times from the table in the smokingroom, and running her listless eye down the Agony Column saw this To Those who Appreciate Wistaria and Sunshine.",
+    "opening_line_sr": "Počelo je u jednom ženskom klubu u Londonu jednog februarskog popodneva - neprijatnog kluba, i jednog jadnog popodneva kada je Vilkins, koja je došla iz Hempsteda u kupovinu i ručala u njenom klubu, uzela \"Tajms\" sa stola u sobi za pušače, i prolazeći svojim bezvoljnim okom niz kolonu agonije, videla je ovo Za one koji cene Vistariju i sunce."
+  },
+  {
+    "filename": "Finn.txt",
+    "stem": "Finn",
+    "title": "Adventures of Huckleberry Finn",
+    "author": "Mark Twain",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "You dont know about me without you have read a book by the name of The Adventures of Tom Sawyer but that aint no matter.",
+    "opening_line_sr": "Ne znate za mene bez da ste pročitali knjigu pod imenom Avanture Toma Sojera, ali to nije bitno."
+  },
+  {
+    "filename": "Franken.txt",
+    "stem": "Franken",
+    "title": "Frankenstein; or, The Modern Prometheus",
+    "author": "Mary Wollstonecraft Shelley",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "The event on which this fiction is founded has been supposed, by Darwin, and some of the physiological writers of Germany, as not of impossible occurrence.",
+    "opening_line_sr": "Događaj na kojem je zasnovana ova fikcija je pretpostavljen, od strane Darvina, i nekih fizioloških pisaca Nemačke, kao da nije nemoguć događaj."
+  },
+  {
+    "filename": "Gatsby.txt",
+    "stem": "Gatsby",
+    "title": "The Great Gatsby",
+    "author": "F. Scott Fitzgerald",
+    "confidence": "high",
+    "method": "opening-pattern:Gatsby",
+    "opening_line_en": "In my younger and more vulnerable years my father gave me some advice that Ive been turning over in my mind ever since.",
+    "opening_line_sr": "U mojim mlađim i ranjivijim godinama otac mi je dao neke savete koje sam od tada prevrtao u glavi."
+  },
+  {
+    "filename": "Great.txt",
+    "stem": "Great",
+    "title": "Great Expectations",
+    "author": "Charles Dickens",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "My fathers family name being Pirrip, and my Christian name Philip, my infant tongue could make of both names nothing longer or more explicit than Pip.",
+    "opening_line_sr": "Prezime mog oca je Pirrip, a moje hrišćansko ime Filip, moj jezik deteta nije mogao da napravi od oba imena ništa duže ili eksplicitnije od Pip."
+  },
+  {
+    "filename": "Grimms.txt",
+    "stem": "Grimms",
+    "title": "Grimms' Fairy Tales",
+    "author": "Brothers Grimm",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "A certain king had a beautiful garden, and in the garden stood a tree which bore golden apples.",
+    "opening_line_sr": "Jedan car imaše lepu baštu, a u bašti stajaše drvo koje je rađalo zlatne jabuke."
+  },
+  {
+    "filename": "Hearth.txt",
+    "stem": "Hearth",
+    "title": "Heart of Darkness",
+    "author": "Joseph Conrad",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "The Nellie, a cruising yawl, swung to her anchor without a flutter of the sails, and was at rest.",
+    "opening_line_sr": "Neli, krstareća jauška, zamahne na sidro bez lepršanja jedra, i odmara se."
+  },
+  {
+    "filename": "Jekyll.txt",
+    "stem": "Jekyll",
+    "title": "Strange Case of Dr Jekyll and Mr Hyde",
+    "author": "Robert Louis Stevenson",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Utterson the lawyer was a man of a rugged countenance that was never lighted by a smile cold, scanty and embarrassed in discourse backward in sentiment lean, long, dusty, dreary and yet somehow lovable.",
+    "opening_line_sr": "Advokat Utterson je bio čovek hrapavog lica koje nikada nije obasjavao osmeh hladan, oskudan i postiđen u razgovoru, nazadan u osećanjima, mršav, dugačak, prašnjav, turoban, a opet nekako simpatičan."
+  },
+  {
+    "filename": "Karenina.txt",
+    "stem": "Karenina",
+    "title": "Anna Karenina",
+    "author": "Leo Tolstoy",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Happy families are all alike every unhappy family is unhappy in its own way.",
+    "opening_line_sr": "Srećne porodice su sve slične, svaka nesrećna porodica je nesrećna na svoj način."
+  },
+  {
+    "filename": "Life.txt",
+    "stem": "Life",
+    "title": "My Life",
+    "author": "Richard Wagner",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "I was born at Leipzig on the 22nd of May 1813, in a room on the second floor of the Red and White Lion, and two days later was baptized at Thomass Church, and christened Wilhelm Richard.",
+    "opening_line_sr": "Rođen sam u Lajpcigu 22. maja 1813. godine, u sobi na drugom spratu Crveno-belog lava, a dva dana kasnije bio sam kršten u crkvi Tomas i kršten Vilhelm Ričard."
+  },
+  {
+    "filename": "Metamorphosis.txt",
+    "stem": "Metamorphosis",
+    "title": "The Metamorphosis",
+    "author": "Franz Kafka",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "One morning, when Gregor Samsa woke from troubled dreams, he found himself transformed in his bed into a horrible vermin.",
+    "opening_line_sr": "Jednog jutra, kada se Gregor Samsa probudio iz problematičnih snova, našao se u svom krevetu pretvoren u užasnu štetočinu."
+  },
+  {
+    "filename": "Moby.txt",
+    "stem": "Moby",
+    "title": "Moby-Dick; or, The Whale",
+    "author": "Herman Melville",
+    "confidence": "high",
+    "method": "opening-pattern:Moby",
+    "opening_line_en": "Call me Ishmael.",
+    "opening_line_sr": "Zovite me Ismail."
+  },
+  {
+    "filename": "Modest.txt",
+    "stem": "Modest",
+    "title": "A Modest Proposal",
+    "author": "Jonathan Swift",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "It is a melancholy object to those, who walk through this great town, or travel in the country, when they see the streets, the roads, and cabbindoors crowded with beggars of the female sex, followed by three, four, or six children, all in rags, and importuning every passenger for an alms.",
+    "opening_line_sr": "To je melanholičan predmet za one koji šetaju ovim velikim gradom, ili putuju po selu, kada vide ulice, puteve i kabine prepune prosjaka ženskog pola, praćenih troje, četvoro ili šestoro dece, svi u krpama, i nagovaraju svakog putnika za milostinju."
+  },
+  {
+    "filename": "Narrative.txt",
+    "stem": "Narrative",
+    "title": "Narrative of the Life of Frederick Douglass, an American Slave",
+    "author": "Frederick Douglass",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "In the month of August, 1841, I attended an antislavery convention in Nantucket, at which it was my happiness to become acquainted with Frederick Douglass, the writer of the following Narrative.",
+    "opening_line_sr": "U mesecu avgustu, 1841, prisustvovao sam konvenciji protiv ropstva u Nantucketu, na kojoj je bila moja sreća da se upoznam sa Frederikom Daglasom, piscem sledeće Priče."
+  },
+  {
+    "filename": "Oliver.txt",
+    "stem": "Oliver",
+    "title": "Oliver Twist",
+    "author": "Charles Dickens",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Among other public buildings in a certain town, which for many reasons it will be prudent to refrain from mentioning, and to which I will assign no fictitious name, there is one anciently common to most towns, great or small to wit, a workhouse and in this workhouse was born on a day and date which I need not trouble myself to repeat, inasmuch as it can be of no possible consequence to the reader, in this stage of the business at all events the item of mortality whose name is prefixed to the head of this chapter.",
+    "opening_line_sr": "Među ostalim javnim zgradama u nekom gradu, koje će iz mnogih razloga biti mudro da se uzdrže od pomena, i kojima neću pripisati nikakvo izmišljeno ime, postoji jedna drevna zajednička većini gradova, velikih ili malih, ubožnica i u ovoj ubožnici je rođena na dan i datum koji ne moram da se trudim da ponovim,  ukoliko to ne može biti od nikakvih mogućih posledica za čitaoca, u ovoj fazi poslovanja u svakom slučaju stavka smrtnosti čije je ime prefiks na naslovu ovog poglavlja."
+  },
+  {
+    "filename": "Oz.txt",
+    "stem": "Oz",
+    "title": "The Wonderful Wizard of Oz",
+    "author": "L. Frank Baum",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Folklore, legends, myths and fairy tales have followed childhood through the ages, for every healthy youngster has a wholesome and instinctive love for stories fantastic, marvelous and manifestly unreal.",
+    "opening_line_sr": "Folklor, legende, mitovi i bajke pratili su detinjstvo kroz vekove, jer svaki zdrav mladić ima zdravu i instinktivnu ljubav prema pričama fantastičnim, čudesnim i očigledno nestvarnim."
+  },
+  {
+    "filename": "Picture.txt",
+    "stem": "Picture",
+    "title": "The Picture of Dorian Gray",
+    "author": "Oscar Wilde",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "The studio was filled with the rich odour of roses, and when the light summer wind stirred amidst the trees of the garden, there came through the open door the heavy scent of the lilac, or the more delicate perfume of the pinkflowering thorn.",
+    "opening_line_sr": "Atelje je bio ispunjen bogatim mirisom ruža, a kada se lagani letnji vetar uzburkao među drvećem u bašti, kroz otvorena vrata dopirao je težak miris jorgovana ili nežniji miris ružičastog trna."
+  },
+  {
+    "filename": "Prince.txt",
+    "stem": "Prince",
+    "title": "The Prince",
+    "author": "Niccolò Machiavelli",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Nicolo Machiavelli, born at Florence on 3rd May 1469.",
+    "opening_line_sr": "Nicolo Machiavelli, rođen u Firenci 3. maja 1469. godine."
+  },
+  {
+    "filename": "Roderick.txt",
+    "stem": "Roderick",
+    "title": "The Adventures of Roderick Random",
+    "author": "Tobias Smollett",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Of all kinds of satire, there is none so entertaining and universally improving, as that which is introduced, as it were occasionally, in the course of an interesting story, which brings every incident home to life, and by representing familiar scenes in an uncommon and amusing point of view, invests them with all the graces of novelty, while nature is appealed to in every particular.",
+    "opening_line_sr": "Od svih vrsta satire, nijedna ne postoji tako zabavna i univerzalno poboljšavajuća, kao ona koja se uvodi, kao povremeno, u toku zanimljive priče, koja oživljava svaki događaj kući, i predstavljajući poznate prizore u neobičnoj i zabavnoj tački gledišta, obdaruje ih svom gracioznošću novosti,  dok se priroda apeluje na svaku pojedinost."
+  },
+  {
+    "filename": "Room.txt",
+    "stem": "Room",
+    "title": "A Room with a View",
+    "author": "E. M. Forster",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "The Signora had no business to do it, said Miss Bartlett, no business at all.",
+    "opening_line_sr": "Gospođa nije imala posla da to uradi, reče gospođica Bartlet, uopšte nema posla."
+  },
+  {
+    "filename": "Sawyer.txt",
+    "stem": "Sawyer",
+    "title": "The Adventures of Tom Sawyer",
+    "author": "Mark Twain",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Most of the adventures recorded in this book really occurred one or two were experiences of my own, the rest those of boys who were schoolmates of mine.",
+    "opening_line_sr": "Većina avantura zabeleženih u ovoj knjizi zaista se dogodila jedna ili dve su bila moja sopstvena iskustva, a ostale one dečaka koji su bili moji školski drugovi."
+  },
+  {
+    "filename": "Scarlet.txt",
+    "stem": "Scarlet",
+    "title": "The Scarlet Letter",
+    "author": "Nathaniel Hawthorne",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "It is a little remarkable, thatthough disinclined to talk overmuch of myself and my affairs at the fireside, and to my personal friendsan autobiographical impulse should twice in my life have taken possession of me, in addressing the public.",
+    "opening_line_sr": "Malo je zapanjujuće da, iako nisam bio sklon da pričam previše o sebi i svojim poslovima pored kamina, i mojim ličnim prijateljima, autobiografski impuls bi me dva puta u životu obuzel u obraćanju javnosti."
+  },
+  {
+    "filename": "Sherlock.txt",
+    "stem": "Sherlock",
+    "title": "The Adventures of Sherlock Holmes",
+    "author": "Arthur Conan Doyle",
+    "confidence": "high",
+    "method": "opening-pattern:Sherlock",
+    "opening_line_en": "To Sherlock Holmes she is always the woman.",
+    "opening_line_sr": "Za Šerloka Holmsa ona je uvek žena."
+  },
+  {
+    "filename": "Tale.txt",
+    "stem": "Tale",
+    "title": "A Tale of Two Cities",
+    "author": "Charles Dickens",
+    "confidence": "high",
+    "method": "opening-pattern:Tale",
+    "opening_line_en": "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair, we had everything before us, we had nothing before us, we were all going direct to Heaven, we were all going direct the other way in short, the period was so far like the present period, that some of its noisiest authorities insisted on its being received, for good or for evil, in the superlative degree of comparison only.",
+    "opening_line_sr": "Bilo je to najbolje vreme, to je bilo najgore vreme, to je bilo doba mudrosti, to je bilo doba gluposti, to je bila epoha verovanja, to je bila epoha neverice, to je bilo doba svetlosti, to je bilo doba tame, to je bilo proleće nade, to je bila zima očaja, to je bila zima očaja,  imali smo sve pred sobom, nismo imali ništa pred sobom, svi smo išli pravo u raj, svi smo išli direktno u suprotnom pravcu, ukratko, period je bio toliko sličan sadašnjem periodu, da su neki od njegovih najbučnijih autoriteta insistirali na tome da se primi, u dobru ili zlu, samo u najvećem stepenu poređenja."
+  },
+  {
+    "filename": "Tom.txt",
+    "stem": "Tom",
+    "title": "The History of Tom Jones, a Foundling",
+    "author": "Henry Fielding",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Sir, Notwithstanding your constant refusal, when I have asked leave to prefix your name to this dedication, I must still insist on my right to desire your protection of this work.",
+    "opening_line_sr": "Gospodine, bez obzira na vaše stalno odbijanje, kada sam zatražio dozvolu da prefiksom vaše ime na ovoj posveti, i dalje moram da insistiram na svom pravu da želim vašu zaštitu ovog dela."
+  },
+  {
+    "filename": "Treasure.txt",
+    "stem": "Treasure",
+    "title": "Treasure Island",
+    "author": "Robert Louis Stevenson",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "Squire Trelawney, Livesey, and the rest of these gentlemen having asked me to write down the whole particulars about Treasure Island, from the beginning to the end, keeping nothing back but the bearings of the island, and that only because there is still treasure not yet lifted, I take up my pen in the year of grace 17, and go back to the time when my father kept the Admiral Benbow inn and the brown old seaman with the sabre cut first took up his lodging under our roof.",
+    "opening_line_sr": "Štitonoša Trelavni, Livesey, i ostala ova gospoda zamolili su me da napišem sve pojedinosti o Ostrvu s blagom, od početka do kraja, ne zadržavajući ništa osim ležajeva ostrva, i to samo zato što još uvek ima blaga koje još nije podignuto, uzimam svoje pero u godini milosti 17,  i vratimo se u vreme kada je moj otac držao gostionicu admirala Benbowa, a smeđi stari mornar sa sabljom isečenom najpre je prenoćio pod našim krovom."
+  },
+  {
+    "filename": "Twenty.txt",
+    "stem": "Twenty",
+    "title": "Twenty Years After",
+    "author": "Alexandre Dumas",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "In a splendid chamber of the Palais Royal, formerly styled the Palais Cardinal, a man was sitting in deep reverie, his head supported on his hands, leaning over a gilt and inlaid table which was covered with letters and papers.",
+    "opening_line_sr": "U prekrasnoj odaji Kraljevske palate, nekada zvanoj Palais Cardinal, sedeo je čovek u dubokom sanjarenju, glave oslonjene na ruke, nagnut nad pozlaćenim i umetnutim stolom koji je bio prekriven pismima i papirima."
+  },
+  {
+    "filename": "Walden.txt",
+    "stem": "Walden",
+    "title": "Walden",
+    "author": "Henry David Thoreau",
+    "confidence": "medium",
+    "method": "filename-stem",
+    "opening_line_en": "When I wrote the following pages, or rather the bulk of them, I lived alone, in the woods, a mile from any neighbor, in a house which I had built myself, on the shore of Walden Pond, in Concord, Massachusetts, and earned my living by the labor of my hands only.",
+    "opening_line_sr": "Kada sam pisao sledeće stranice, ili bolje rečeno većinu njih, živeo sam sam, u šumi, kilometar i pol od bilo kog komšije, u kući koju sam sam sagradio, na obali Volden Ponda, u Konkordu, u Masačusetsu, i zarađivao za život samo radom svojih ruku."
+  },
+  {
+    "filename": "War.txt",
+    "stem": "War",
+    "title": "War and Peace",
+    "author": "Leo Tolstoy",
+    "confidence": "high",
+    "method": "opening-pattern:War",
+    "opening_line_en": "Well, Prince, so Genoa and Lucca are now just family estates of the Buonapartes.",
+    "opening_line_sr": "Pa, Prinče, tako da su Đenova i Luka sada samo porodična imanja Buonaparta."
+  },
+  {
+    "filename": "WoW.txt",
+    "stem": "WoW",
+    "title": "The War of the Worlds",
+    "author": "H. G. Wells",
+    "confidence": "high",
+    "method": "opening-pattern:WoW",
+    "opening_line_en": "No one would have believed in the last years of the nineteenth century that this world was being watched keenly and closely by intelligences greater than mans and yet as mortal as his own that as men busied themselves about their various concerns they were scrutinised and studied, perhaps almost as narrowly as a man with a microscope might scrutinise the transient creatures that swarm and multiply in a drop of water.",
+    "opening_line_sr": "Niko ne bi verovao u poslednjim godinama devetnaestog veka da ovaj svet pažljivo i pomno posmatraju inteligencije veće od čoveka, a ipak smrtne kao i njegove, da dok su se ljudi bavili svojim različitim brigama, oni su pomno ispitivani i proučavani, možda skoro onoliko usko kao što bi čovek sa mikroskopom mogao da posmatra prolazna stvorenja koja se roje i množe u kapi vode."
+  },
+  {
+    "filename": "Yellow.txt",
+    "stem": "Yellow",
+    "title": "The Yellow Wallpaper",
+    "author": "Charlotte Perkins Gilman",
+    "confidence": "high",
+    "method": "opening-pattern:Yellow",
+    "opening_line_en": "It is very seldom that mere ordinary people like John and myself secure ancestral halls for the summer.",
+    "opening_line_sr": "Veoma je retko da obični ljudi poput Džona i mene obezbeđuju sale predaka za leto."
+  }
+]
