@@ -4,8 +4,11 @@ import pandas as pd
 # Paths
 prepared_folder = "prepared"
 translated_folder = "translated"
-output_csv_eng_to_sr = "eng_to_sr.csv"
-output_csv_sr_to_eng = "sr_to_eng.csv"
+output_dir = "data"
+output_csv_eng_to_sr = os.path.join(output_dir, "eng_to_sr.csv")
+output_csv_sr_to_eng = os.path.join(output_dir, "sr_to_eng.csv")
+
+os.makedirs(output_dir, exist_ok=True)
 
 # Collect parallel sentences
 data_eng_to_sr = []

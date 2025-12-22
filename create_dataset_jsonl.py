@@ -4,8 +4,11 @@ import json
 # Paths
 prepared_folder = "prepared"
 translated_folder = "translated"
-output_jsonl_eng_to_sr = "eng_to_sr.jsonl"
-output_jsonl_sr_to_eng = "sr_to_eng.jsonl"
+output_dir = "data"
+output_jsonl_eng_to_sr = os.path.join(output_dir, "eng_to_sr.jsonl")
+output_jsonl_sr_to_eng = os.path.join(output_dir, "sr_to_eng.jsonl")
+
+os.makedirs(output_dir, exist_ok=True)
 
 # Collect parallel sentences
 data_eng_to_sr = []

@@ -5,8 +5,11 @@ import json
 
 # Paths
 serbian_folder = "translated"
-output_csv = "serbian_corpus.csv"
-output_jsonl = "serbian_corpus.jsonl"
+output_dir = "data"
+output_csv = os.path.join(output_dir, "serbian_corpus.csv")
+output_jsonl = os.path.join(output_dir, "serbian_corpus.jsonl")
+
+os.makedirs(output_dir, exist_ok=True)
 
 # Function to clean text
 def clean_text(text):

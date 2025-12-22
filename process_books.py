@@ -5,8 +5,12 @@ import unicodedata
 from textblob import TextBlob
 from nltk.tokenize.punkt import PunktSentenceTokenizer, PunktParameters
 
-# Explicitly set the correct NLTK data path
-nltk.data.path.append("C:\\Users\\Simbyot\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.12_qbz5n2kfra8p0\\LocalCache\\Roaming\\nltk_data")
+
+def ensure_nltk_punkt() -> None:
+    try:
+        nltk.data.find("tokenizers/punkt")
+    except LookupError:
+        nltk.download("punkt", quiet=True)
 
 # Define paths
 source_folder = "source"
@@ -142,6 +146,7 @@ def should_process_file(input_path, output_path):
 
 def process_files():
     """Processes only new or modified .txt files in the source folder."""
+    ensure_nltk_punkt()
     for filename in os.listdir(source_folder):
         if filename.endswith(".txt"):
             input_path = os.path.join(source_folder, filename)
