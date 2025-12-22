@@ -1,77 +1,94 @@
 # mt5-en-sr-latin-books
 
-## What is this repo?
-This repository contains a **baseline** fine-tuning setup for `google/mt5-small` (mT5) on an **English → Serbian (sr-Latn)** parallel dataset derived from books.
+Baseline fine-tuning + evaluation setup for English ↔ Serbian (sr-Latn) translation using `google/mt5-small`, with datasets derived from book text.
 
-It also contains helper scripts to:
-- clean/source books into sentence-per-line text (`source/` → `prepared/`)
-- translate prepared English into Serbian Latin (`translated/`)
-- build parallel datasets (`eng_to_sr.csv`, `sr_to_eng.csv`, and JSONL variants)
-- validate checkpoints and produce a machine-readable evaluation report
-
-The longer-term goal is to implement additional training strategies (A–D) while keeping comparisons fair and reproducible.
+This repository includes:
+- Book text preprocessing (raw → sentence-per-line)
+- Parallel dataset builders (CSV/JSONL)
+- Monolingual corpus builders (CSV/JSONL)
+- Colab-first training + evaluation scripts with caching and diacritics sanity checks
 
 ---
 
-## Dataset
+## Repository structure
 
-### Parallel data (supervised translation)
-The supervised translation datasets are:
-- `eng_to_sr.csv` (English source, Serbian target)
-- `sr_to_eng.csv` (Serbian source, English target)
+```
+.
+├─ colab_train_t5.py
+├─ colab_validate_t5.py
+├─ colab_test_t5.py
+├─ process_books.py
+├─ create_dataset.py
+├─ create_dataset_jsonl.py
+├─ create_english_corpus.py
+├─ create_serbian_corpus.py
+├─ book_titles.json
+├─ data/
+├─ source/
+├─ prepared/
+└─ translated/
+```
 
-Format (both files):
-- CSV with columns:
-  - `source` (input text)
-  - `target` (expected output text)
+---
 
-How the parallel pairs are created:
+## Datasets
+
+### Parallel translation (supervised)
+
+Files (stored in `data/`):
+- `data/eng_to_sr.csv` (English source → Serbian target)
+- `data/sr_to_eng.csv` (Serbian source → English target)
+
+Format:
+- CSV with columns: `source`, `target`
+
+How pairs are created:
 - `prepared/*.txt` contains English sentences, one per line
 - `translated/*.txt` contains Serbian Latin sentences, one per line
-- Files are aligned by **line index** (the script uses `zip(en_lines, sr_lines)`)
+- Files are aligned by **line index** (`zip(en_lines, sr_lines)`).
+
+Important implications of line-alignment:
+- Dataset quality depends on consistent sentence segmentation.
+- If translation merges/splits lines, alignment drifts and harms training.
 
 Scripts:
-- `create_dataset.py` → writes `eng_to_sr.csv` + `sr_to_eng.csv`
-- `create_dataset_jsonl.py` → writes `eng_to_sr.jsonl` + `sr_to_eng.jsonl`
+- `create_dataset.py` → writes `data/eng_to_sr.csv` + `data/sr_to_eng.csv`
+- `create_dataset_jsonl.py` → writes `data/eng_to_sr.jsonl` + `data/sr_to_eng.jsonl`
 
-Important implications of the alignment method:
-- Parallel quality depends on **sentence segmentation consistency**.
-- If a translation step merges/splits lines, alignment will drift and harm training.
+### Monolingual corpora (for CPT / denoising)
 
-### Monolingual corpora (for continued pretraining / denoising)
-For CPT-style experiments, you can build monolingual corpora:
-- `serbian_corpus.csv` / `serbian_corpus.jsonl` from `translated/*.txt` via `create_serbian_corpus.py`
-- `english_corpus.csv` / `english_corpus.jsonl` from `prepared/*.txt` via `create_english_corpus.py`
+Files (stored in `data/`):
+- `data/serbian_corpus.csv` / `data/serbian_corpus.jsonl` from `translated/*.txt` via `create_serbian_corpus.py`
+- `data/english_corpus.csv` / `data/english_corpus.jsonl` from `prepared/*.txt` via `create_english_corpus.py`
 
 Format:
 - CSV/JSONL with one field: `text`
 
 ### Book metadata
-`book_titles.json` is a metadata file describing the book files in `prepared/` (and, if present, their Serbian counterparts in `translated/`). Each entry includes:
-- `filename`, `stem`
-- `title`, `author`
-- detection `confidence` and `method`
-- `opening_line_en` and `opening_line_sr`
+
+`book_titles.json` contains metadata for the book files (title/author, matching stems, and opening lines).
 
 ---
 
 ## Baseline (current)
 
-**Baseline definition**
+Baseline definition:
 - Train direction: **EN → SR**
-- Data: `eng_to_sr.csv` only
+- Data: `data/eng_to_sr.csv`
 - Model: `google/mt5-small`
 - Trainer: `Seq2SeqTrainer`
-- Early stopping: enabled, based on `eval_loss`
-- Split: deterministic **70/20/10** (train/valid/test) via `seed=42`
+- Early stopping: enabled on `eval_loss`
+- Split: deterministic **70/20/10** (train/valid/test) with `seed=42`
 
 ### Why mT5
-Serbian Latin requires diacritics (`č ć š ž đ`). The scripts include explicit sanity checks to ensure:
+
+Serbian Latin requires diacritics (`č ć š ž đ`). The Colab scripts include sanity checks to ensure:
 - the dataset contains diacritics
 - the tokenizer can encode/decode diacritics
-- tokenization does not “lose” diacritics
+- tokenization and generation do not “lose” diacritics
 
 ### Tokenizer details
+
 This project uses the tokenizer that ships with the chosen base model (by default `google/mt5-small`). Concretely:
 
 - **Tokenizer type:** SentencePiece (you’ll see `spiece.model` in model folders).
@@ -92,12 +109,35 @@ Checkpoint robustness:
 
 ---
 
-## How training works (Colab-first)
+## Data pipeline
+
+Intended flow:
+
+1) Put raw English books in `source/` (one `.txt` per book)
+2) Convert to cleaned, sentence-per-line English in `prepared/` via:
+
+```bash
+python process_books.py
+```
+
+3) Translate `prepared/` → `translated/` (Serbian Latin), keeping one sentence per line
+   - Note: translation tooling is intentionally external to this repo; you can use any provider as long as you preserve line alignment.
+4) Build datasets into `data/`:
+
+```bash
+python create_dataset.py
+python create_dataset_jsonl.py
+python create_english_corpus.py
+python create_serbian_corpus.py
+```
+
+---
+
+## Training (Colab-first)
 
 The core training script is `colab_train_t5.py`.
 
 ### Expected Drive layout
-The training script expects a Drive project directory:
 
 ```
 /content/drive/MyDrive/T5/
@@ -108,27 +148,22 @@ The training script expects a Drive project directory:
   cache/
 ```
 
-You can change this via the `CONFIG` dict at the top of `colab_train_t5.py`.
+You can change these via the `CONFIG` dict in `colab_train_t5.py`.
 
 ### Install / environment
-In a fresh Colab runtime the script auto-installs:
-- `transformers==4.49.0`
-- `datasets==3.3.2`
-- `evaluate==0.4.6`
-- `sacrebleu==2.5.1`
-- `sentencepiece==0.2.0`
-- `accelerate==1.4.0`
-- `protobuf>=4.25.0`
+
+In a fresh Colab runtime:
+
+```bash
+!pip install -q transformers datasets evaluate sacrebleu sentencepiece accelerate protobuf
+```
 
 ### Run training
-In Colab:
 
 ```python
 from google.colab import drive
 drive.mount('/content/drive')
 ```
-
-Then:
 
 ```bash
 python /content/drive/MyDrive/T5/colab_train_t5.py
@@ -137,9 +172,10 @@ python /content/drive/MyDrive/T5/colab_train_t5.py
 Key configuration knobs (edit in `CONFIG`):
 - `translation_direction`: `eng_to_sr` or `sr_to_eng`
 - `learning_rate`, `num_train_epochs`
-- batch sizes + `gradient_accumulation_steps`
+- batch sizes and `gradient_accumulation_steps`
 - `max_input_length`, `max_target_length`
-- checkpoint/eval cadence: `save_steps`, `eval_steps`
+- checkpoint cadence: `save_steps`
+- eval cadence: `eval_steps`
 - early stopping: `early_stopping_patience`
 
 ### Output naming
@@ -191,15 +227,11 @@ At the end of training:
 ## Validation / benchmarking
 
 ### Full evaluation on the held-out test split
-Use `colab_validate_t5.py` to evaluate a chosen checkpoint or the final model directory.
 
-It:
-- recreates the exact same 70/20/10 split (same seed)
-- runs generation on test
-- computes:
-  - sacreBLEU (BLEU)
-  - chrF++
-  - diacritics precision/recall/F1 + “any diacritics rate”
+`colab_validate_t5.py`:
+- recreates the same 70/20/10 split (seed=42)
+- runs generation on the test split
+- computes sacreBLEU, chrF++, and diacritics precision/recall/F1
 - writes `validate_results.json`
 
 Example:
@@ -216,30 +248,11 @@ python /content/drive/MyDrive/T5/colab_validate_t5.py \
 ```
 
 ### Quick smoke tests (sanity prompts)
-`colab_test_t5.py` loads the newest usable checkpoint (or final model) and runs short prompts including “station variants”:
-- “Where is the train station?”
-- “Where is the station?”
-- “Where is the bus station?”
 
-This is useful for spotting:
+`colab_test_t5.py` runs inference checks (including “station variants”) to quickly spot:
 - “ASCII Serbian” failures (missing diacritics)
-- weird memorization or mappings
-- domain gaps (see notes below)
-
----
-
-## Data pipeline (how the repo was built)
-
-The intended flow is:
-
-1) Put raw English books in `source/` (one `.txt` per book)
-2) Convert to sentence-per-line cleaned English in `prepared/`
-   - `process_books.py` does sentence splitting and aggressive cleanup
-3) Translate `prepared/` → `translated/` (Serbian Latin)
-   - `translate_prepared.py` uses Azure Translator batch document translation
-4) Build parallel datasets:
-   - `create_dataset.py` (CSV)
-   - `create_dataset_jsonl.py` (JSONL)
+- brittle mappings or memorization
+- out-of-domain gaps
 
 ---
 
@@ -258,7 +271,7 @@ Hypothesis:
 - Encourages a shared bilingual latent space.
 
 Implementation notes:
-- Build a combined dataset from `eng_to_sr.csv` and `sr_to_eng.csv`.
+- Build a combined dataset from `data/eng_to_sr.csv` and `data/sr_to_eng.csv`.
 - Add a `direction` field and generate the prefix accordingly.
 - Experiment with mixing ratios (50/50, proportional to dataset sizes, etc.).
 - Keep hyperparameters identical to baseline for fair comparisons.
@@ -278,7 +291,7 @@ Hypothesis:
 - Improves Serbian fluency/style and morphology for literary domain.
 
 Implementation notes (high-level):
-- Use `serbian_corpus.jsonl` or directly `translated/*.txt` as monolingual text.
+- Use `data/serbian_corpus.jsonl` or directly `translated/*.txt` as monolingual text.
 - Create a denoising dataset (T5 span corruption):
   - input: corrupted Serbian sentence
   - target: removed spans (T5 format)
@@ -339,16 +352,6 @@ Report both clearly as: in-domain vs out-of-domain.
 
 ---
 
-## Repo structure
+## License
 
-Top-level important files:
-- `colab_train_t5.py` — baseline fine-tuning script (mT5, caching, early stopping)
-- `colab_validate_t5.py` — evaluation runner producing `validate_results.json`
-- `colab_test_t5.py` — quick inference smoke tests
-- `create_dataset.py` / `create_dataset_jsonl.py` — builds parallel datasets
-- `create_serbian_corpus.py` / `create_english_corpus.py` — monolingual corpora for CPT
-
-Data folders:
-- `source/` — raw English books
-- `prepared/` — cleaned English, sentence-per-line
-- `translated/` — Serbian Latin translations, sentence-per-line
+MIT License. See the [LICENSE](LICENSE) file.
