@@ -16,6 +16,8 @@ This repository includes:
 .
 ├─ colab_train_t5.py
 ├─ colab_train_t5_strategy_a.py
+├─ colab_pretrain_t5_strategy_b.py
+├─ colab_train_t5_strategy_b.py
 ├─ colab_validate_t5.py
 ├─ colab_test_t5.py
 ├─ process_books.py
@@ -356,12 +358,31 @@ Two-stage training:
 Hypothesis:
 - Improves Serbian fluency/style and morphology for literary domain.
 
+### Hypothesis to test
+
+- **Domain fluency:** CPT on `serbian_corpus.csv` reduces unnatural phrasing and improves literary Serbian style.
+- **Morphology + agreement:** better handling of Serbian inflection (case/number/gender) and local syntactic agreement.
+- **Diacritics robustness:** SR outputs keep diacritics more consistently (fewer “ASCII Serbian” regressions), especially in longer generations.
+- **Downstream translation gains:** after fine-tuning, EN→SR improves more than SR→EN (because the CPT stage is SR-only), with measurable gains in chrF++ and diacritics F1.
+- **Compute efficiency:** translation fine-tuning should converge faster (lower eval_loss earlier) when starting from the CPT checkpoint.
+
 Implementation notes (high-level):
-- Use `data/serbian_corpus.jsonl` or directly `translated/*.txt` as monolingual text.
+- Use `data/serbian_corpus.csv` as monolingual text.
 - Create a denoising dataset (T5 span corruption):
   - input: corrupted Serbian sentence
   - target: removed spans (T5 format)
 - Train for a fixed compute budget (steps), then switch to supervised translation.
+
+Script (CPT / pretrainer):
+- `colab_pretrain_t5_strategy_b.py`
+
+Script (translation fine-tune from CPT):
+- `colab_train_t5_strategy_b.py`
+
+How it connects to translation:
+- After CPT finishes, `colab_train_t5_strategy_b.py` loads the saved CPT folder via `CONFIG["cpt_checkpoint_dir"]`.
+- Set `cpt_checkpoint_dir` to the CPT output directory path, or leave as `"auto"` to use the default pretrainer output naming.
+- The translation fine-tune script is baseline-identical except for starting from the CPT checkpoint (fair comparison).
 
 What to report:
 - Translation metrics (BLEU/chrF++ + diacritics)
