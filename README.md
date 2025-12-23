@@ -15,6 +15,7 @@ This repository includes:
 ```
 .
 ├─ colab_train_t5.py
+├─ colab_train_t5_strategy_a.py
 ├─ colab_validate_t5.py
 ├─ colab_test_t5.py
 ├─ process_books.py
@@ -258,28 +259,93 @@ python /content/drive/MyDrive/T5/colab_validate_t5.py \
 
 ## 🗺️ Additional Strategies (TODO roadmap)
 
-The baseline is intentionally simple. Below are the planned strategies and what “done” should look like.
+The baseline is intentionally simple. Below are *remaining* planned strategies and what “done” should look like.
 
-### Strategy A — Bidirectional supervised fine-tune (single model, two directions)
-Train one model on both directions, mixed together, using task prefixes:
+> Note: **Strategy A is implemented** (see the section below).
+
+---
+
+## 🔁 Strategy A (implemented): Bidirectional supervised fine-tune
+
+Strategy A trains **one** seq2seq model on **both** directions at once, using task prefixes:
 
 - `translate English to Serbian: {en}` → `{sr}`
 - `translate Serbian to English: {sr}` → `{en}`
 
-Hypothesis:
-- Regularizes the model and improves semantic consistency.
-- Encourages a shared bilingual latent space.
+### Hypothesis to test
 
-Implementation notes:
-- Build a combined dataset from `data/eng_to_sr.csv` and `data/sr_to_eng.csv`.
-- Add a `direction` field and generate the prefix accordingly.
-- Experiment with mixing ratios (50/50, proportional to dataset sizes, etc.).
-- Keep hyperparameters identical to baseline for fair comparisons.
+- **Regularization:** training both directions together regularizes the model vs single-direction fine-tuning.
+- **Semantic consistency:** encourages a shared bilingual latent space, improving meaning preservation.
+- **Quality:** can improve overall translation quality (BLEU/chrF++), while keeping hyperparameters identical for fair comparison.
+- **Serbian diacritics:** should not degrade diacritics behavior for SR outputs (and may improve it).
 
-What to report:
-- EN→SR BLEU / chrF++
-- SR→EN BLEU / chrF++
-- Diacritics metrics for SR outputs
+### Script
+
+Use: `colab_train_t5_strategy_a.py`
+
+It is designed as a drop-in sibling of `colab_train_t5.py`: it keeps the same training/eval/caching/resume machinery so comparisons remain fair.
+
+### What is identical to baseline
+
+- Model: `google/mt5-small`
+- Hyperparameters / Trainer args (epochs, LR, batch sizes, lengths, checkpoint cadence, early stopping)
+- Deterministic split: **70/20/10** with `split_seed=42`
+- Tokenization cache on Drive
+- Diacritics sanity checks
+- Checkpoint robustness: tokenizer is saved into every `checkpoint-*` directory
+- Resume behavior: auto-resume from latest checkpoint **only if** dataset fingerprint matches
+- Output summary: writes `results.json` in the same schema as baseline
+
+### Core implementation details
+
+1) **In-memory dataset mixing (no new CSV on disk)**
+
+The script loads both CSVs from Drive:
+
+- `data/eng_to_sr.csv`
+- `data/sr_to_eng.csv`
+
+Then it optionally subsamples each direction (fractions are configurable), concatenates, and shuffles once.
+
+Config knobs (in `CONFIG["mix"]`):
+
+- `eng_to_sr_fraction` (default `1.0`)
+- `sr_to_eng_fraction` (default `1.0`)
+- `sample_mode`: `"random"` (shuffle+take K) or `"deterministic_head"` (take first K)
+- `sample_seed`: seed used for subsampling/shuffling when `sample_mode="random"`
+
+2) **Direction column + per-example prefixes**
+
+After loading, each direction gets a `direction` column (`"eng_to_sr"` or `"sr_to_eng"`).
+During preprocessing, the input is built per-example using:
+
+```
+prefix_map = {
+  "eng_to_sr": "translate English to Serbian: ",
+  "sr_to_eng": "translate Serbian to English: ",
+}
+```
+
+3) **Split is done after mixing**
+
+The combined dataset is split into train/validation/test (70/20/10) *after* mixing so the splits contain a similar distribution of both directions.
+
+4) **Caching + fingerprinting are extended to cover both CSVs and mix config**
+
+- Tokenization cache path includes fingerprints for *both* CSVs + the mix config.
+- `dataset_fingerprint.txt` is also based on both CSV fingerprints + mix config + split sig.
+
+This prevents accidentally resuming/tokenizing on mismatched data.
+
+### What to report (recommended)
+
+The training script computes overall metrics on the held-out test split. For papers/tables, Strategy A is typically reported as:
+
+- **EN→SR** BLEU / chrF++
+- **SR→EN** BLEU / chrF++
+- Diacritics metrics specifically for Serbian outputs
+
+Note: the current script keeps the metric computation identical to baseline for comparability. If you want per-direction test metrics, we can add them under a `strategy_a` key in `results.json` without changing the baseline schema.
 
 ### Strategy B — Serbian-only continued pretraining (CPT) → then translation fine-tune
 Two-stage training:
@@ -305,7 +371,7 @@ What to report:
 Two-stage training:
 
 1) CPT on mixed monolingual corpora (e.g., 50% SR, 50% EN)
-2) Bidirectional supervised fine-tune (Strategy A) from that checkpoint
+2) Bidirectional supervised fine-tune (Strategy A) from that checkpoint (implemented)
 
 Hypothesis:
 - Avoids over-adapting to Serbian-only distribution.
@@ -317,7 +383,7 @@ Implementation notes:
 
 What to report:
 - Both directions metrics
-- Compare against Strategy A (no CPT) and Strategy B (SR-only CPT)
+- Compare against Strategy A (no CPT, implemented) and Strategy B (SR-only CPT)
 
 ### Strategy D — Back-translation augmentation (monolingual → synthetic parallel)
 Use monolingual Serbian to create synthetic parallel data:
