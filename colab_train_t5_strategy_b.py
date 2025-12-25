@@ -924,9 +924,9 @@ def main() -> None:
     train_started_at = time.time()
     if resume:
         print("Resuming from:", resume)
-        trainer.train(resume_from_checkpoint=resume)
+        train_result = trainer.train(resume_from_checkpoint=resume)
     else:
-        trainer.train()
+        train_result = trainer.train()
 
     train_elapsed_sec = float(time.time() - train_started_at)
 
@@ -974,6 +974,13 @@ def main() -> None:
         },
         "decoding": decoding,
         "test_metrics": test_metrics,
+        "strategy_b": {
+            # Raw config value (may be 'auto')
+            "cpt_checkpoint_dir": str(CONFIG.get("cpt_checkpoint_dir", "auto")),
+            # Resolved directory actually used to initialize the model
+            "resolved_cpt_checkpoint_dir": str(CONFIG.get("model_name")),
+            "tokenized_cache": str(cache_path),
+        },
     }
 
     try:

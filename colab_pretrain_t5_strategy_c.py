@@ -95,10 +95,10 @@ CONFIG = {
     "max_target_length": 256,
 
     # Dataset split ratios (70/20/10)
-    # Using seed=62 to match Strategy B family, but feel free to switch to 42 if you prefer.
+    # Using seed=72 for Strategy C family (distinct from Strategy B's 62 and baseline's 42).
     "validation_split": 0.2,
     "test_split": 0.1,
-    "split_seed": 62,
+    "split_seed": 72,
 
     # Denoising / corruption params (safe defaults; same as Strategy B)
     "noise_density": 0.15,
@@ -834,6 +834,27 @@ def main() -> None:
 
     # Validate sentinel tokens exist
     _make_sentinels(tokenizer, 3)
+
+    # Confirm tokenizer can represent Serbian diacritics (baseline helper logic)
+    def _print_tokenizer_diacritics_support(tok) -> None:
+        diacritics = "čćšžđČĆŠŽĐ"
+        try:
+            print("\n[Tokenizer sanity] Diacritics round-trip")
+            bad: list[str] = []
+            for ch in diacritics:
+                ids = tok.encode(ch, add_special_tokens=False)
+                decoded = tok.decode(ids, skip_special_tokens=True)
+                ok = (decoded == ch)
+                print(f"- {ch!r} -> ids={ids} -> {decoded!r} ok={ok}")
+                if not ok:
+                    bad.append(ch)
+            if bad:
+                print("[WARN] Tokenizer cannot round-trip these diacritics:", "".join(bad))
+                print("[Hint] Use a T5/mT5 model family with SentencePiece that supports these chars.")
+        except Exception as exc:
+            print(f"\n[WARN] Tokenizer diacritics check failed: {type(exc).__name__}: {exc}")
+
+    _print_tokenizer_diacritics_support(tokenizer)
 
     # Tokenize (cached)
     cache_path = tokenized_cache_path(sr_fp, en_fp)

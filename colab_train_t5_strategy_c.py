@@ -70,7 +70,7 @@ CONFIG = {
         "sr_to_eng_fraction": 1.0,
         "sample_mode": "random",
         # Keep separate from split_seed so you can vary shuffle without changing splits
-        "sample_seed": 62,
+        "sample_seed": 72,
     },
 
     # Training
@@ -85,8 +85,8 @@ CONFIG = {
     # Dataset split ratios (70/20/10)
     "validation_split": 0.2,
     "test_split": 0.1,
-    # Use 62 by default for Strategy C family; set to 42 to match baseline if preferred.
-    "split_seed": 62,
+    # Use 72 by default for Strategy C family (distinct from Strategy B's 62 and baseline's 42).
+    "split_seed": 72,
 
     # Memory optimizations / stability
     "optim": "adamw_torch",
@@ -295,7 +295,7 @@ def cpt_expected_output_dir() -> Path:
     model_slug = safe_slug(model_name)
     family = "mt5" if "mt5" in model_name.lower() else "t5"
 
-    split_seed = 62
+    split_seed = 72
     valid_ratio = 0.2
     test_ratio = 0.1
     train_ratio = 1.0 - valid_ratio - test_ratio
@@ -332,13 +332,13 @@ def output_dir() -> Path:
     valid_ratio = float(CONFIG.get("validation_split", 0.2))
     test_ratio = float(CONFIG.get("test_split", 0.1))
     train_ratio = 1.0 - valid_ratio - test_ratio
-    split_seed = int(CONFIG.get("split_seed", 62))
+    split_seed = int(CONFIG.get("split_seed", 72))
 
     mix = CONFIG.get("mix") or {}
     e = float(mix.get("eng_to_sr_fraction", 1.0))
     s = float(mix.get("sr_to_eng_fraction", 1.0))
     sample_mode = str(mix.get("sample_mode", "random"))
-    sample_seed = int(mix.get("sample_seed", 62))
+    sample_seed = int(mix.get("sample_seed", 72))
 
     def _pct(x: float) -> int:
         return int(round(float(x) * 100.0))
@@ -363,7 +363,7 @@ def tokenized_cache_path() -> Path:
         e = float(mix.get("eng_to_sr_fraction", 1.0))
         s = float(mix.get("sr_to_eng_fraction", 1.0))
         sample_mode = str(mix.get("sample_mode", "random"))
-        sample_seed = int(mix.get("sample_seed", 62))
+        sample_seed = int(mix.get("sample_seed", 72))
         fingerprint = f"eng__{fp_a}__sr__{fp_b}__e{e:.4f}__s{s:.4f}__{sample_mode}__seed{sample_seed}"
     except Exception:
         pass
@@ -371,7 +371,7 @@ def tokenized_cache_path() -> Path:
     valid_ratio = float(CONFIG.get("validation_split", 0.2))
     test_ratio = float(CONFIG.get("test_split", 0.1))
     train_ratio = 1.0 - valid_ratio - test_ratio
-    split_seed = int(CONFIG.get("split_seed", 62))
+    split_seed = int(CONFIG.get("split_seed", 72))
 
     def _pct(x: float) -> int:
         return int(round(float(x) * 100.0))
@@ -512,7 +512,7 @@ def build_bidirectional_dataset(load_dataset_fn):
     eng_frac = _validate_fraction("mix.eng_to_sr_fraction", mix.get("eng_to_sr_fraction", 1.0))
     sr_frac = _validate_fraction("mix.sr_to_eng_fraction", mix.get("sr_to_eng_fraction", 1.0))
     sample_mode = str(mix.get("sample_mode", "random"))
-    sample_seed = int(mix.get("sample_seed", 62))
+    sample_seed = int(mix.get("sample_seed", 72))
 
     print(f"\n[Strategy C] Loading: {eng_path}")
     ds_eng = load_dataset_fn("csv", data_files=str(eng_path))["train"]
@@ -687,7 +687,7 @@ def main() -> None:
             "Need validation_split + test_split < 1.0"
         )
 
-    split_seed = int(CONFIG.get("split_seed", 62))
+    split_seed = int(CONFIG.get("split_seed", 72))
     split_test = dataset.train_test_split(test_size=test_ratio, seed=split_seed)
     train_valid = split_test["train"]
     test_ds = split_test["test"]
@@ -877,7 +877,7 @@ def main() -> None:
     valid_ratio = float(CONFIG.get("validation_split", 0.2))
     test_ratio = float(CONFIG.get("test_split", 0.1))
     train_ratio = 1.0 - valid_ratio - test_ratio
-    split_seed = int(CONFIG.get("split_seed", 62))
+    split_seed = int(CONFIG.get("split_seed", 72))
 
     def _pct(x: float) -> int:
         return int(round(float(x) * 100.0))
@@ -891,7 +891,7 @@ def main() -> None:
     e = float(mix.get("eng_to_sr_fraction", 1.0))
     s = float(mix.get("sr_to_eng_fraction", 1.0))
     sample_mode = str(mix.get("sample_mode", "random"))
-    sample_seed = int(mix.get("sample_seed", 62))
+    sample_seed = int(mix.get("sample_seed", 72))
 
     current_fp = (
         f"eng__{eng_fp}__sr__{sr_fp}__e{e:.4f}__s{s:.4f}__{sample_mode}__seed{sample_seed}"
@@ -1010,9 +1010,9 @@ def main() -> None:
     train_started_at = time.time()
     if resume:
         print("Resuming from:", resume)
-        trainer.train(resume_from_checkpoint=resume)
+        train_result = trainer.train(resume_from_checkpoint=resume)
     else:
-        trainer.train()
+        train_result = trainer.train()
 
     train_elapsed_sec = float(time.time() - train_started_at)
 
@@ -1044,7 +1044,9 @@ def main() -> None:
         "model_name": str(CONFIG["model_name"]),
         "translation_direction": str(CONFIG["translation_direction"]),
         "output_dir": str(out_dir),
-        "dataset_csv": [str(data_path("eng_to_sr.csv")), str(data_path("sr_to_eng.csv"))],
+        # For bidirectional runs, there isn't a single CSV that fully describes the dataset.
+        # Strategy A uses None here; keep the same schema for consistency.
+        "dataset_csv": None,
         "dataset_fingerprint": str(current_fp),
         "resume_from": str(resume) if resume else None,
         "split": {
@@ -1056,7 +1058,11 @@ def main() -> None:
             "eng_to_sr_fraction": float(CONFIG.get("mix", {}).get("eng_to_sr_fraction", 1.0)),
             "sr_to_eng_fraction": float(CONFIG.get("mix", {}).get("sr_to_eng_fraction", 1.0)),
             "sample_mode": str(CONFIG.get("mix", {}).get("sample_mode", "random")),
-            "sample_seed": int(CONFIG.get("mix", {}).get("sample_seed", 62)),
+            "sample_seed": int(CONFIG.get("mix", {}).get("sample_seed", 72)),
+        },
+        "strategy_c": {
+            "mix": CONFIG.get("mix"),
+            "tokenized_cache": str(cache_path),
         },
         "decoding": decoding,
         "training": {
