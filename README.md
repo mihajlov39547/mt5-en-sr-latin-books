@@ -20,6 +20,7 @@ This repository includes:
 ├─ colab_train_t5_strategy_b.py
 ├─ colab_pretrain_t5_strategy_c.py
 ├─ colab_train_t5_strategy_c.py
+├─ colab_train_t5_strategy_d.py
 ├─ colab_validate_t5.py
 ├─ colab_test_t5.py
 ├─ process_books.py
@@ -425,26 +426,51 @@ What to report:
 - Both directions metrics
 - Compare against Strategy A (no CPT, implemented) and Strategy B (SR-only CPT)
 
-### Strategy D — Back-translation augmentation (monolingual → synthetic parallel)
-Use monolingual Serbian to create synthetic parallel data:
+## Strategy D: Single-stage mixed training (SR denoising + EN→SR)
 
-1) Train a preliminary SR→EN model (baseline but reversed, or a shorter run)
-2) Translate large Serbian monolingual corpus → synthetic English
-3) Train EN→SR on (synthetic EN → real SR), optionally mixed with real pairs
+Strategy D is a **one-stage** training run that mixes:
 
-Hypothesis:
-- Improves coverage when real parallel data is domain-limited.
+1) **Serbian-only denoising / language adaptation** (T5 span corruption) on `data/serbian_corpus.csv`
+2) **Supervised EN→SR translation** on `data/eng_to_sr.csv`
 
-Implementation notes:
-- Generate X synthetic pairs (e.g. 100k–500k), then mix with real parallel.
-- Keep a clean held-out test set that is never synthesized from.
-- Add an ablation: real-only vs real+synthetic.
+This keeps the “single-stage” spirit of Strategy A, but instead of mixing two
+translation directions, it mixes **(denoise SR)** + **(translate EN→SR)**.
 
-What to report:
-- In-domain metrics (held-out literary sentences)
-- Out-of-domain probes (see below)
+### Why this makes sense
 
----
+- mT5 already has strong English representations.
+- Your translation target is Serbian, so improving Serbian generation (via
+  denoising) can help fluency, morphology, and diacritics.
+- Mixing both objectives in one run avoids the explicit two-stage CPT→fine-tune
+  pipeline.
+
+### What script to run
+
+- `colab_train_t5_strategy_d.py`
+
+It uses the same baseline-style plumbing as the other scripts:
+
+- deterministic splits
+- tokenization caching on Drive
+- checkpoint auto-resume (with dataset fingerprint guard)
+- BLEU/chrF++ + diacritics metrics (computed on translation-only validation/test)
+- `results.json` saved into the output model folder
+
+### Notes / knobs
+
+In `colab_train_t5_strategy_d.py`, the main controls are:
+
+- `CONFIG["mix"]["sr_denoise_fraction"]` and `CONFIG["mix"]["en_to_sr_fraction"]`
+- corruption params: `noise_density`, `mean_noise_span_length`
+- Model: `google/mt5-small`
+- Trainer: `Seq2SeqTrainer`
+- Early stopping: enabled on `eval_loss`
+- Split: deterministic **70/20/10** (train/valid/test) with `seed=82` (Strategy D)
+
+Prefix behavior (intentional):
+- Translation uses the standard task prefix: `translate English to Serbian: `
+- Denoising uses **no prefix** (matches Strategy B CPT): raw corrupted text with `<extra_id_*>` sentinels
+
 
 ## 📊 Evaluation design (important for fair comparisons)
 
