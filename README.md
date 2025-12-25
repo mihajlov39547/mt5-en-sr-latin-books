@@ -262,11 +262,25 @@ python /content/drive/MyDrive/T5/colab_validate_t5.py \
 
 ---
 
-## 🗺️ Additional Strategies (TODO roadmap)
+## 🧪 Strategies (experimental)
 
-The baseline is intentionally simple. Below are *remaining* planned strategies and what “done” should look like.
+All strategies are designed to be **as baseline-identical as possible** (same Trainer family, caching, checkpointing, resume guard, and metrics), so that differences are attributable to the strategy itself.
 
-> Note: **Strategy A is implemented** (see the section below).
+For each strategy below, the main thing we’re testing is the stated **hypothesis**.
+
+### At-a-glance comparison
+
+| Setup | Training objective | Data used | Stages | Default seed | Scripts | Metrics focus |
+|---|---|---|---:|---:|---|---|
+| **Baseline** | Supervised translation (single direction) | `eng_to_sr.csv` | 1 | 42 | `colab_train_t5.py` | BLEU, chrF++, diacritics (SR) |
+| **A** | Supervised translation (bidirectional multitask) | `eng_to_sr.csv` + `sr_to_eng.csv` | 1 | 52 | `colab_train_t5_strategy_a.py` | BLEU/chrF++ both directions; diacritics on SR outputs |
+| **B** | CPT denoising (SR) → supervised EN→SR | `serbian_corpus.csv` → `eng_to_sr.csv` | 2 | 62 | `colab_pretrain_t5_strategy_b.py` + `colab_train_t5_strategy_b.py` | EN→SR BLEU/chrF++; diacritics; plus CPT eval_loss |
+| **C** | CPT denoising (SR+EN) → supervised bidirectional | `serbian_corpus.csv` + `english_corpus.csv` → (`eng_to_sr.csv` + `sr_to_eng.csv`) | 2 | 72 | `colab_pretrain_t5_strategy_c.py` + `colab_train_t5_strategy_c.py` | Both directions BLEU/chrF++; diacritics; plus CPT eval_loss |
+| **D** | Single-stage mix: SR denoising + supervised EN→SR | `serbian_corpus.csv` + `eng_to_sr.csv` | 1 | 82 | `colab_train_t5_strategy_d.py` | EN→SR BLEU/chrF++; diacritics (translation-only eval) |
+
+Notes:
+- “Default seed” here refers to each script’s `CONFIG["split_seed"]` (and `sample_seed` where applicable).
+- Regardless of strategy, use `colab_validate_t5.py` / `colab_test_t5.py` for consistent evaluation and quick probes.
 
 ---
 
@@ -294,7 +308,7 @@ It is designed as a drop-in sibling of `colab_train_t5.py`: it keeps the same tr
 
 - Model: `google/mt5-small`
 - Hyperparameters / Trainer args (epochs, LR, batch sizes, lengths, checkpoint cadence, early stopping)
-- Deterministic split: **70/20/10** with `split_seed=42`
+- Deterministic split: **70/20/10** with its strategy seed (default `split_seed=52`)
 - Tokenization cache on Drive
 - Diacritics sanity checks
 - Checkpoint robustness: tokenizer is saved into every `checkpoint-*` directory
@@ -352,14 +366,19 @@ The training script computes overall metrics on the held-out test split. For pap
 
 Note: the current script keeps the metric computation identical to baseline for comparability. If you want per-direction test metrics, we can add them under a `strategy_a` key in `results.json` without changing the baseline schema.
 
-### Strategy B — Serbian-only continued pretraining (CPT) → then translation fine-tune
+## 🔧 Strategy B (implemented): Serbian-only CPT → EN→SR fine-tune
 Two-stage training:
 
 1) CPT on Serbian monolingual text with T5 denoising (span corruption)
 2) Fine-tune on EN→SR translation (baseline setup) starting from CPT checkpoint
 
-Hypothesis:
-- Improves Serbian fluency/style and morphology for literary domain.
+### Hypothesis to test
+
+- **Domain fluency:** CPT on `serbian_corpus.csv` improves Serbian fluency/style in the literary domain.
+- **Morphology + agreement:** better handling of Serbian inflection (case/number/gender) and local syntactic agreement.
+- **Diacritics robustness:** fewer “ASCII Serbian” regressions, especially in longer generations.
+- **Downstream translation gains:** EN→SR improves more than SR→EN (CPT is SR-only), often reflected more strongly in chrF++ than BLEU.
+- **Efficiency:** supervised fine-tuning converges faster (lower `eval_loss` earlier) when starting from the CPT checkpoint.
 
 ### Hypothesis to test
 
@@ -382,6 +401,12 @@ Script (CPT / pretrainer):
 Script (translation fine-tune from CPT):
 - `colab_train_t5_strategy_b.py`
 
+### What to report
+
+- EN→SR BLEU / chrF++
+- Diacritics precision/recall/F1 (+ any-rate)
+- Learning curves / best `eval_loss` checkpoint (optional)
+
 How it connects to translation:
 - After CPT finishes, `colab_train_t5_strategy_b.py` loads the saved CPT folder via `CONFIG["cpt_checkpoint_dir"]`.
 - Set `cpt_checkpoint_dir` to the CPT output directory path, or leave as `"auto"` to use the default pretrainer output naming.
@@ -391,7 +416,7 @@ What to report:
 - Translation metrics (BLEU/chrF++ + diacritics)
 - A fluency proxy on held-out Serbian (optional) and/or small human evaluation
 
-### Strategy C — Mixed-language CPT (Serbian + English) → bidirectional fine-tune
+## 🌍 Strategy C (implemented): Mixed-language CPT (SR+EN) → bidirectional fine-tune
 Two-stage training:
 
 1) CPT on mixed monolingual corpora (e.g., 50% SR, 50% EN)
@@ -426,7 +451,7 @@ What to report:
 - Both directions metrics
 - Compare against Strategy A (no CPT, implemented) and Strategy B (SR-only CPT)
 
-## Strategy D: Single-stage mixed training (SR denoising + EN→SR)
+## 🧩 Strategy D (implemented): Single-stage mixed training (SR denoising + EN→SR)
 
 Strategy D is a **one-stage** training run that mixes:
 
@@ -456,6 +481,12 @@ It uses the same baseline-style plumbing as the other scripts:
 - BLEU/chrF++ + diacritics metrics (computed on translation-only validation/test)
 - `results.json` saved into the output model folder
 
+### Hypothesis to test
+
+- **Serbian generation quality:** mixing denoising improves Serbian fluency and morphology while learning EN→SR translation.
+- **Diacritics:** denoising increases diacritics correctness and reduces ASCII fallbacks.
+- **One-stage simplicity:** achieves some of Strategy B’s benefits without a separate CPT stage.
+
 ### Notes / knobs
 
 In `colab_train_t5_strategy_d.py`, the main controls are:
@@ -470,7 +501,6 @@ In `colab_train_t5_strategy_d.py`, the main controls are:
 Prefix behavior (intentional):
 - Translation uses the standard task prefix: `translate English to Serbian: `
 - Denoising uses **no prefix** (matches Strategy B CPT): raw corrupted text with `<extra_id_*>` sentinels
-
 
 ## 📊 Evaluation design (important for fair comparisons)
 
