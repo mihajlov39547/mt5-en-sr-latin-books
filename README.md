@@ -380,14 +380,6 @@ Two-stage training:
 
 ### Hypothesis to test
 
-- **Domain fluency:** CPT on `serbian_corpus.csv` improves Serbian fluency/style in the literary domain.
-- **Morphology + agreement:** better handling of Serbian inflection (case/number/gender) and local syntactic agreement.
-- **Diacritics robustness:** fewer “ASCII Serbian” regressions, especially in longer generations.
-- **Downstream translation gains:** EN→SR improves more than SR→EN (CPT is SR-only), often reflected more strongly in chrF++ than BLEU.
-- **Efficiency:** supervised fine-tuning converges faster (lower `eval_loss` earlier) when starting from the CPT checkpoint.
-
-### Hypothesis to test
-
 - **Domain fluency:** CPT on `serbian_corpus.csv` reduces unnatural phrasing and improves literary Serbian style.
 - **Morphology + agreement:** better handling of Serbian inflection (case/number/gender) and local syntactic agreement.
 - **Diacritics robustness:** SR outputs keep diacritics more consistently (fewer “ASCII Serbian” regressions), especially in longer generations.
