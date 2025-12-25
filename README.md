@@ -19,6 +19,7 @@ This repository includes:
 ├─ colab_pretrain_t5_strategy_b.py
 ├─ colab_train_t5_strategy_b.py
 ├─ colab_pretrain_t5_strategy_c.py
+├─ colab_train_t5_strategy_c.py
 ├─ colab_validate_t5.py
 ├─ colab_test_t5.py
 ├─ process_books.py
@@ -405,6 +406,14 @@ Implementation notes:
 
 Script (CPT / pretrainer):
 - `colab_pretrain_t5_strategy_c.py`
+
+Script (translation fine-tune from CPT):
+- `colab_train_t5_strategy_c.py`
+
+How it connects to translation:
+- After Strategy C CPT finishes, `colab_train_t5_strategy_c.py` loads the saved CPT folder via `CONFIG["cpt_checkpoint_dir"]`.
+- Set `cpt_checkpoint_dir` to the Strategy C CPT output directory path, or leave as `"auto"` to use the default pretrainer output naming.
+- The fine-tune stage is Strategy A-like (bidirectional supervised mixing) and baseline-identical aside from starting from the CPT checkpoint.
 
 Default configuration:
 - Uses `data/serbian_corpus.csv` + `data/english_corpus.csv`
