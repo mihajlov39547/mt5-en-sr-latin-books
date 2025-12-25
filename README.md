@@ -86,6 +86,10 @@ Baseline definition:
 - Early stopping: enabled on `eval_loss`
 - Split: deterministic **70/20/10** (train/valid/test) with `seed=42`
 
+Docs:
+- Model background: **[`MODEL_MT5_SMALL.md`](MODEL_MT5_SMALL.md)**
+- Metric definitions: **[`METRICS.md`](METRICS.md)**
+
 ### Why mT5
 
 Serbian Latin requires diacritics (`č ć š ž đ`). The Colab scripts include sanity checks to ensure:
@@ -231,6 +235,8 @@ At the end of training:
 ---
 
 ## ✅ Validation / benchmarking
+
+For a detailed explanation of the metrics used to compare Baseline vs strategies, see: **[`METRICS.md`](METRICS.md)**.
 
 ### Full evaluation on the held-out test split
 
