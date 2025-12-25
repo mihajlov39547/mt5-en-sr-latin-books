@@ -18,6 +18,7 @@ This repository includes:
 ├─ colab_train_t5_strategy_a.py
 ├─ colab_pretrain_t5_strategy_b.py
 ├─ colab_train_t5_strategy_b.py
+├─ colab_pretrain_t5_strategy_c.py
 ├─ colab_validate_t5.py
 ├─ colab_test_t5.py
 ├─ process_books.py
@@ -401,6 +402,15 @@ Hypothesis:
 Implementation notes:
 - Same denoising objective as Strategy B.
 - Sample from EN and SR corpora with a fixed ratio.
+
+Script (CPT / pretrainer):
+- `colab_pretrain_t5_strategy_c.py`
+
+Default configuration:
+- Uses `data/serbian_corpus.csv` + `data/english_corpus.csv`
+- Mix ratio: 50% SR / 50% EN (configurable in `CONFIG["mix"]`)
+- Uses full corpora by default; will downsample the larger corpus so the mix is balanced
+  (set `CONFIG["mix"]["balance_mode"] = "keep_all"` to keep all rows)
 
 What to report:
 - Both directions metrics
