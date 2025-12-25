@@ -162,6 +162,21 @@ But changing the backbone changes the experiment: for strategy comparisons, it�
 
 ---
 
+## Why we keep the backbone fixed (for strategy comparisons)
+
+When comparing Strategies A/B/C/D against the Baseline, we want the differences to come from the **training protocol** (mixing, CPT, denoising, etc.), not from using a fundamentally stronger or weaker model.
+
+Keeping `google/mt5-small` fixed helps ensure:
+
+- **Controlled experiment:** one major variable changes at a time.
+- **Fairness:** improvements aren’t just because a larger model was used.
+- **Reproducibility:** fewer moving parts across runs.
+- **Compute comparability:** strategies can be compared under similar hardware/time budgets.
+
+Once you’ve identified the best *strategy*, a good next step is to re-run that strategy on a larger checkpoint (e.g., `mt5-base`) to see how quality scales.
+
+---
+
 ## Where this repo uses mT5
 
 - Baseline training: `colab_train_t5.py`
