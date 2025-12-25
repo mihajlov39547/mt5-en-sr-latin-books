@@ -1,0 +1,6 @@
+# Training scripts in this repo are Colab-first and install deps inline.
+# This file is for running the new from-scratch PyTorch implementation locally.
+
+torch>=2.1
+numpy>=1.26
+sentencepiece>=0.2.0

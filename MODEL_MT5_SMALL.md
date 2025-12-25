@@ -85,6 +85,53 @@ Why this objective is useful:
 
 ---
 
+## Implementation details, code, and licensing
+
+### Pretraining data: mC4 (101 languages)
+
+Google’s mT5 is pretrained on **mC4** (multilingual C4), a Common Crawl–derived corpus covering **101 languages**.
+
+Practical implications:
+
+- mT5 starts with multilingual coverage (including **Serbian**) rather than being English-only.
+- It is **not** pretrained with supervised translation pairs; it learns general text generation via the denoising objective, and becomes a translator only after fine-tuning.
+
+This repo does not repeat the full language list inline (it’s long); for the authoritative list and details, see the mT5 paper and the official mT5 repo/README.
+
+### Is it open source?
+
+In the sense relevant for research and reproducibility:
+
+- **Model checkpoints are publicly released** (e.g. `google/mt5-small`).
+- **Reference training code** for reproducing mT5 experiments is publicly available in Google Research’s mT5/T5 ecosystem.
+- **This repo uses open-source tooling** (Hugging Face + SentencePiece) to load, fine-tune, and evaluate the checkpoint.
+
+Note: “open source” can mean different things (weights vs training code vs dataset). mC4 is derived from Common Crawl and has its own distribution/usage considerations; for exact licensing/terms, consult the upstream sources.
+
+### How this repo uses mT5 (Python packages)
+
+All scripts here load and fine-tune `google/mt5-small` using standard OSS packages:
+
+- `transformers` — `AutoTokenizer`, `AutoModelForSeq2SeqLM`, `Seq2SeqTrainer`, generation.
+- `datasets` — CSV loading, deterministic splits, and `save_to_disk` tokenization caching.
+- `sentencepiece` — required for the SentencePiece tokenizer (`spiece.model`).
+- `evaluate` + `sacrebleu` — BLEU + chrF++ computation.
+- `accelerate` — runtime utilities used by Transformers in many setups.
+- `protobuf` — dependency for parts of the HF stack.
+
+In Colab, the training/validation scripts include an `ensure_packages()` helper that installs pinned versions for reproducibility.
+
+### Citation
+
+If you reference the base model formally, cite the mT5 paper:
+
+> Linting Xue, Noah Constant, Adam Roberts, Mihir Kale, Rami Al-Rfou, Aditya Siddhant, Aditya Barua, Colin Raffel.
+> **mT5: A Massively Multilingual Pre-trained Text-to-Text Transformer.** NAACL 2021.
+
+This repo’s `CITATION.cff` is for citing *this repository*; it is separate from citing mT5 itself.
+
+---
+
 ## What does “small” mean?
 
 “Small” indicates the smaller parameter configuration in the mT5 family.

@@ -90,6 +90,12 @@ Docs:
 - Model background: **[`MODEL_MT5_SMALL.md`](MODEL_MT5_SMALL.md)**
 - Metric definitions: **[`METRICS.md`](METRICS.md)**
 
+### From scratch implementation
+
+This repo also contains an educational, PyTorch-only, T5/mT5-style encoder–decoder implementation (including KV caching) under `src/`:
+
+- **[`src/mt5_from_scratch/README.md`](src/mt5_from_scratch/README.md)**
+
 ### Why mT5
 
 Serbian Latin requires diacritics (`č ć š ž đ`). The Colab scripts include sanity checks to ensure:
