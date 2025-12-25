@@ -30,6 +30,17 @@ Example (Colab)
 Notes
 - This is intended for evaluation/benchmarking. It may be slow on CPU.
 - It does not require any training checkpoints beyond the one you choose.
+
+Strategy support
+----------------
+This validator can evaluate baseline and strategy runs.
+
+- Baseline (default): seed=42, recreate split via train_test_split.
+- Strategies A/B/C: same split logic, but use different default seeds (A=52, B=62, C=72).
+- Strategy D: supports a Strategy D-specific keyed split (stable by example content) and
+    evaluates metrics on translation-only rows, matching `colab_train_t5_strategy_d.py`.
+
+Use `--strategy d` for Strategy D keyed split + translation-only evaluation.
 """
 
 from __future__ import annotations
@@ -46,6 +57,55 @@ os.environ.setdefault("TRANSFORMERS_NO_TORCHVISION", "1")
 
 
 _DIACRITICS = "čćšžđČĆŠŽĐ"
+
+
+def _normalize_strategy(s: str) -> str:
+    s = (s or "").strip().lower()
+    if s in {"", "baseline", "none", "base"}:
+        return "baseline"
+    if s in {"a", "strategy_a", "strategya"}:
+        return "a"
+    if s in {"b", "strategy_b", "strategyb"}:
+        return "b"
+    if s in {"c", "strategy_c", "strategyc"}:
+        return "c"
+    if s in {"d", "strategy_d", "strategyd"}:
+        return "d"
+    raise ValueError("--strategy must be one of: baseline, a, b, c, d")
+
+
+def _default_seed_for_strategy(strategy: str) -> int:
+    strategy = _normalize_strategy(strategy)
+    return {
+        "baseline": 42,
+        "a": 52,
+        "b": 62,
+        "c": 72,
+        "d": 82,
+    }[strategy]
+
+
+def stable_split_key_strategy_d(example: dict) -> str:
+    """Stable key for Strategy D keyed split.
+
+    Mirrors `colab_train_t5_strategy_d.py`.
+    """
+    task = example.get("task")
+    if task == "translate_en_to_sr":
+        return f"en2sr::{example.get('source','')}::{example.get('target','')}"
+    return f"srden::{example.get('text','')}"
+
+
+def assign_split_strategy_d(key: str, *, seed: int, valid_ratio: float, test_ratio: float) -> str:
+    import hashlib
+
+    h = hashlib.sha256((str(seed) + "::" + str(key)).encode("utf-8")).hexdigest()
+    r = int(h[:8], 16) / float(0xFFFFFFFF)
+    if r < float(test_ratio):
+        return "test"
+    if r < float(test_ratio) + float(valid_ratio):
+        return "validation"
+    return "train"
 
 
 def safe_slug(text: str) -> str:
@@ -308,6 +368,14 @@ def _diacritics_scores(preds: list[str], refs: list[str]) -> dict[str, float]:
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument(
+        "--strategy",
+        default="baseline",
+        help=(
+            "Which setup to validate: baseline | a | b | c | d. "
+            "Sets a sensible default seed and enables Strategy D keyed split when set to 'd'."
+        ),
+    )
+    ap.add_argument(
         "--base_dir",
         required=True,
         help="Training output directory that contains checkpoint-* folders and/or final model",
@@ -353,7 +421,15 @@ def main() -> None:
             "If omitted, it is inferred from --base_dir when possible."
         ),
     )
-    ap.add_argument("--seed", type=int, default=42, help="Split seed (must match training for comparable results)")
+    ap.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help=(
+            "Split seed. If omitted, a default is chosen from --strategy (baseline=42, a=52, b=62, c=72, d=82). "
+            "Must match training for comparable results."
+        ),
+    )
     ap.add_argument("--validation_split", type=float, default=0.2, help="Validation split ratio")
     ap.add_argument("--test_split", type=float, default=0.1, help="Test split ratio")
     ap.add_argument("--max_input_length", type=int, default=256)
@@ -373,6 +449,10 @@ def main() -> None:
     )
     args = ap.parse_args()
 
+    strategy = _normalize_strategy(getattr(args, "strategy", "baseline"))
+    if args.seed is None:
+        args.seed = _default_seed_for_strategy(strategy)
+
     if is_colab():
         ensure_packages()
 
@@ -388,8 +468,10 @@ def main() -> None:
 
     print("\n=== Selection ===")
     print("base_dir:", base_dir)
+    print("strategy:", strategy)
     print("which   :", args.which)
     print("model_dir:", model_dir)
+    print("seed    :", int(args.seed))
 
     missing = validate_dir_contents(model_dir)
     if missing:
@@ -417,19 +499,39 @@ def main() -> None:
     model = AutoModelForSeq2SeqLM.from_pretrained(str(model_dir)).to(device)
     model.eval()
 
-    # Load dataset (raw CSV) OR reuse tokenized cache from training.
-    if args.csv_path.strip():
-        csv_path = Path(args.csv_path)
-    else:
-        # Default Drive location
-        csv_name = "eng_to_sr.csv" if args.direction == "eng_to_sr" else "sr_to_eng.csv"
-        csv_path = Path("/content/drive/MyDrive/T5/data") / csv_name
+    # Load datasets.
+    # - baseline/A/B/C: validates on a single translation CSV
+    # - strategy D: rebuilds a mixed dataset (sr denoise + en->sr translate) and evaluates translation-only
 
-    if not csv_path.exists():
-        raise FileNotFoundError(f"CSV not found: {csv_path}")
+    project_root = Path(args.project_root) if args.project_root.strip() else infer_project_root_from_run_dir(base_dir)
+    if project_root is None:
+        project_root = Path("/content/drive/MyDrive/T5")
 
     print("\n=== Data ===")
-    print("csv_path:", csv_path)
+    print("project_root:", project_root)
+
+    csv_path: Path | None = None
+    sr_corpus_path: Path | None = None
+    en2sr_path: Path | None = None
+
+    if strategy == "d":
+        en2sr_path = Path(args.csv_path) if args.csv_path.strip() else (project_root / "data" / "eng_to_sr.csv")
+        sr_corpus_path = project_root / "data" / "serbian_corpus.csv"
+        print("eng_to_sr.csv:", en2sr_path)
+        print("serbian_corpus.csv:", sr_corpus_path)
+        if not en2sr_path.exists():
+            raise FileNotFoundError(f"CSV not found: {en2sr_path}")
+        if not sr_corpus_path.exists():
+            raise FileNotFoundError(f"CSV not found: {sr_corpus_path}")
+    else:
+        if args.csv_path.strip():
+            csv_path = Path(args.csv_path)
+        else:
+            csv_name = "eng_to_sr.csv" if args.direction == "eng_to_sr" else "sr_to_eng.csv"
+            csv_path = project_root / "data" / csv_name
+        print("csv_path:", csv_path)
+        if not csv_path.exists():
+            raise FileNotFoundError(f"CSV not found: {csv_path}")
 
     valid_ratio = float(args.validation_split)
     test_ratio = float(args.test_split)
@@ -440,13 +542,12 @@ def main() -> None:
     tokenized: DatasetDict | None = None
     dataset_dict: DatasetDict | None = None
 
-    if bool(args.use_tokenized_cache):
+    if strategy != "d" and bool(args.use_tokenized_cache):
         cache_dir: Path | None = None
 
         if args.tokenized_cache_dir.strip():
             cache_dir = Path(args.tokenized_cache_dir)
         else:
-            project_root = Path(args.project_root) if args.project_root.strip() else infer_project_root_from_run_dir(base_dir)
             model_slug = infer_model_slug_from_run_dir(base_dir)
             if project_root is not None and model_slug is not None:
                 cache_dir = tokenized_cache_path(
@@ -477,31 +578,98 @@ def main() -> None:
         else:
             print("[WARN] Could not infer tokenized cache directory; falling back to CSV split.")
 
-    if not used_tokenized_cache:
-        dataset = load_dataset("csv", data_files=str(csv_path))["train"]
+    if strategy == "d":
+        # Strategy D: keyed split + translation-only evaluation.
+        ds_sr = load_dataset("csv", data_files=str(sr_corpus_path))["train"]
+        ds_en2sr = load_dataset("csv", data_files=str(en2sr_path))["train"]
 
-        split_test = dataset.train_test_split(test_size=test_ratio, seed=int(args.seed))
-        train_valid = split_test["train"]
-        test_ds = split_test["test"]
+        ds_sr = ds_sr.add_column("task", ["sr_denoise"] * len(ds_sr))
+        ds_en2sr = ds_en2sr.add_column("task", ["translate_en_to_sr"] * len(ds_en2sr))
 
-        valid_ratio_rel = valid_ratio / (1.0 - test_ratio)
-        split_valid = train_valid.train_test_split(test_size=valid_ratio_rel, seed=int(args.seed))
+        def _sr_to_union(ex):
+            return {
+                "task": "sr_denoise",
+                "source": ex.get("text"),
+                "target": ex.get("text"),
+                "text": ex.get("text"),
+            }
 
-        dataset_dict = DatasetDict({
-            "train": split_valid["train"],
-            "validation": split_valid["test"],
-            "test": test_ds,
-        })
+        def _en2sr_to_union(ex):
+            return {
+                "task": "translate_en_to_sr",
+                "source": ex.get("source"),
+                "target": ex.get("target"),
+                "text": None,
+            }
 
-        print("rows train/valid/test:", len(dataset_dict["train"]), len(dataset_dict["validation"]), len(dataset_dict["test"]))
+        ds_sr_u = ds_sr.map(_sr_to_union, remove_columns=ds_sr.column_names)
+        ds_en2sr_u = ds_en2sr.map(_en2sr_to_union, remove_columns=ds_en2sr.column_names)
 
-    test_eval = tokenized["test"] if used_tokenized_cache and tokenized is not None else dataset_dict["test"]
-    if args.limit_test and int(args.limit_test) > 0:
-        n = min(int(args.limit_test), len(test_eval))
-        test_eval = test_eval.select(range(n))
-        print("limit_test:", n)
+        from datasets import concatenate_datasets
 
-    prefix = "translate English to Serbian: " if args.direction == "eng_to_sr" else "translate Serbian to English: "
+        combined = concatenate_datasets([ds_sr_u, ds_en2sr_u])
+
+        def _with_split(ex):
+            key = stable_split_key_strategy_d(ex)
+            return {
+                "split": assign_split_strategy_d(
+                    key,
+                    seed=int(args.seed),
+                    valid_ratio=float(valid_ratio),
+                    test_ratio=float(test_ratio),
+                )
+            }
+
+        combined = combined.map(_with_split)
+        train_ds = combined.filter(lambda x: x["split"] == "train")
+        valid_ds = combined.filter(lambda x: x["split"] == "validation")
+        test_ds = combined.filter(lambda x: x["split"] == "test")
+        dataset_dict = DatasetDict({"train": train_ds, "validation": valid_ds, "test": test_ds})
+        print("rows train/valid/test (mixed):", len(train_ds), len(valid_ds), len(test_ds))
+
+        test_eval = test_ds.filter(lambda x: x["task"] == "translate_en_to_sr")
+        if args.limit_test and int(args.limit_test) > 0:
+            n = min(int(args.limit_test), len(test_eval))
+            test_eval = test_eval.select(range(n))
+            print("limit_test (translation-only):", n)
+
+        # Strategy D always evaluates EN->SR with the standard prefix.
+        prefix = "translate English to Serbian: "
+
+        # In Strategy D validation we always treat inputs as raw "source" strings.
+        used_tokenized_cache = False
+
+    else:
+        if not used_tokenized_cache:
+            dataset = load_dataset("csv", data_files=str(csv_path))["train"]
+
+            split_test = dataset.train_test_split(test_size=test_ratio, seed=int(args.seed))
+            train_valid = split_test["train"]
+            test_ds = split_test["test"]
+
+            valid_ratio_rel = valid_ratio / (1.0 - test_ratio)
+            split_valid = train_valid.train_test_split(test_size=valid_ratio_rel, seed=int(args.seed))
+
+            dataset_dict = DatasetDict({
+                "train": split_valid["train"],
+                "validation": split_valid["test"],
+                "test": test_ds,
+            })
+
+            print(
+                "rows train/valid/test:",
+                len(dataset_dict["train"]),
+                len(dataset_dict["validation"]),
+                len(dataset_dict["test"]),
+            )
+
+        test_eval = tokenized["test"] if used_tokenized_cache and tokenized is not None else dataset_dict["test"]
+        if args.limit_test and int(args.limit_test) > 0:
+            n = min(int(args.limit_test), len(test_eval))
+            test_eval = test_eval.select(range(n))
+            print("limit_test:", n)
+
+        prefix = "translate English to Serbian: " if args.direction == "eng_to_sr" else "translate Serbian to English: "
 
     # Generate predictions
     preds: list[str] = []
@@ -576,10 +744,13 @@ def main() -> None:
     report = {
         "ok": True,
         "base_dir": str(base_dir),
+        "strategy": str(strategy),
         "which": args.which,
         "model_dir": str(model_dir),
         "direction": args.direction,
-        "csv_path": str(csv_path),
+        "csv_path": str(csv_path) if csv_path is not None else "",
+        "serbian_corpus_csv": str(sr_corpus_path) if sr_corpus_path is not None else "",
+        "eng_to_sr_csv": str(en2sr_path) if en2sr_path is not None else "",
         "used_tokenized_cache": bool(used_tokenized_cache),
         "split": {
             "train": 1.0 - valid_ratio - test_ratio,
@@ -601,6 +772,10 @@ def main() -> None:
             "chrfpp": float(chrf),
             "length_ratio": float(length_ratio),
             **diac,
+        },
+        "notes": {
+            "strategy_d_keyed_split": bool(strategy == "d"),
+            "eval_is_translation_only": bool(strategy == "d"),
         },
     }
 

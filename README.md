@@ -238,6 +238,8 @@ At the end of training:
 
 For a detailed explanation of the metrics used to compare Baseline vs strategies, see: **[`METRICS.md`](METRICS.md)**.
 
+For a detailed guide on validating Baseline and each strategy (A/B/C/D) with `colab_validate_t5.py`, see: **[`VALIDATION.md`](VALIDATION.md)**.
+
 ### Full evaluation on the held-out test split
 
 `colab_validate_t5.py`:
