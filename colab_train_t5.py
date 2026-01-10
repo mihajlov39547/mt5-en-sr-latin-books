@@ -45,6 +45,14 @@ import json
 # Helps reduce CUDA memory fragmentation on long runs (safe no-op if unsupported).
 os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
+# Transformers may try to auto-detect TensorFlow if it's installed in the runtime.
+# On Colab this often causes noisy TensorFlow/XLA CUDA plugin registration logs.
+# This script is PyTorch-only, so explicitly disable TF integration early.
+os.environ.setdefault("TRANSFORMERS_NO_TF", "1")
+
+# If TensorFlow still gets imported by something else, keep its native logs quieter.
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+
 os.environ.setdefault("TRANSFORMERS_NO_TORCHVISION", "1")
 
 
@@ -122,8 +130,8 @@ CONFIG = {
     # Early stopping (runs on eval metric)
     # With metric_for_best_model="eval_loss", this stops when validation loss stops improving.
     "early_stopping": True,
-    "early_stopping_patience": 8,      # number of evals with no improvement before stopping
-    "early_stopping_threshold": 0.0,   # minimum improvement to be considered "better"
+    "early_stopping_patience": 4,      # number of evals with no improvement before stopping
+    "early_stopping_threshold": 0.001,   # minimum improvement to be considered "better"
 
     # Mixed precision
     # fp16 can diverge depending on runtime/library versions; start stable.
@@ -951,6 +959,11 @@ def main() -> None:
     train_started_at = time.time()
     if resume:
         print("Resuming from:", resume)
+        print(
+            "[Info] If you see a warning about missing keys like "
+            "'encoder.embed_tokens.weight'/'decoder.embed_tokens.weight', "
+            "it's typically expected for (m)T5 because encoder/decoder embeddings are tied to 'shared.weight'."
+        )
         trainer.train(resume_from_checkpoint=resume)
     else:
         trainer.train()
