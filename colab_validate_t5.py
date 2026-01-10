@@ -12,7 +12,9 @@ What this script does
   - sacreBLEU (BLEU)
   - chrF++
   - diacritics precision/recall/F1 + any-rate
-- Writes a machine-readable report to validate_results.json
+- Writes a machine-readable report JSON:
+    - if --output_json is set, writes to that exact path
+    - otherwise writes to /content/drive/MyDrive/T5/results/validate_<YYYYMMDD_HHMMSS>.json
 
 Example (Colab)
   from google.colab import drive
@@ -445,7 +447,10 @@ def main() -> None:
     ap.add_argument(
         "--output_json",
         default="",
-        help="Where to write validate_results.json (default: base_dir/validate_results.json)",
+        help=(
+            "Where to write the JSON report. If omitted, writes a timestamped file to "
+            "/content/drive/MyDrive/T5/results/validate_<YYYYMMDD_HHMMSS>.json"
+        ),
     )
     args = ap.parse_args()
 
@@ -779,7 +784,21 @@ def main() -> None:
         },
     }
 
-    out_path = Path(args.output_json) if args.output_json else (base_dir / "validate_results.json")
+    # Determine output path: prefer explicit --output_json, otherwise create
+    # a timestamped file under /content/drive/MyDrive/T5/results.
+    if args.output_json and args.output_json.strip():
+        out_path = Path(args.output_json)
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+    else:
+        from datetime import datetime
+
+        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+        default_results_dir = Path("/content/drive/MyDrive/T5/results")
+        results_dir = default_results_dir if default_results_dir.parent.exists() or is_colab() else (project_root / "results")
+        results_dir.mkdir(parents=True, exist_ok=True)
+        out_path = results_dir / f"validate_{ts}.json"
+
     out_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print("\nWrote:", out_path)
 
