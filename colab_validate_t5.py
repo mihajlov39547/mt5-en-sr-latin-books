@@ -61,6 +61,30 @@ os.environ.setdefault("TRANSFORMERS_NO_TORCHVISION", "1")
 _DIACRITICS = "čćšžđČĆŠŽĐ"
 
 
+def _now_compact_timestamp() -> str:
+    # Matches the default output filename format used by this script.
+    from datetime import datetime
+
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
+
+
+def _expand_output_json_template(template: str, *, ts: str) -> str:
+    """Expand common timestamp placeholders inside --output_json.
+
+    This avoids Colab/Jupyter shell scoping issues where `$TS`/`${TS}` might be empty.
+    Supported placeholders: `$TS`, `${TS}`, `$ts`, `${ts}`.
+    """
+    s = (template or "").strip()
+    if not s:
+        return s
+    return (
+        s.replace("${TS}", ts)
+        .replace("$TS", ts)
+        .replace("${ts}", ts)
+        .replace("$ts", ts)
+    )
+
+
 def _normalize_strategy(s: str) -> str:
     s = (s or "").strip().lower()
     if s in {"", "baseline", "none", "base"}:
@@ -454,6 +478,8 @@ def main() -> None:
     )
     args = ap.parse_args()
 
+    run_ts = _now_compact_timestamp()
+
     strategy = _normalize_strategy(getattr(args, "strategy", "baseline"))
     if args.seed is None:
         args.seed = _default_seed_for_strategy(strategy)
@@ -784,20 +810,16 @@ def main() -> None:
         },
     }
 
-    # Determine output path: prefer explicit --output_json, otherwise create
-    # a timestamped file under /content/drive/MyDrive/T5/results.
+    # Determine output path: prefer explicit --output_json (with optional $TS/${TS}
+    # expansion), otherwise create a timestamped file under /content/drive/MyDrive/T5/results.
     if args.output_json and args.output_json.strip():
-        out_path = Path(args.output_json)
+        out_path = Path(_expand_output_json_template(args.output_json, ts=run_ts))
         out_path.parent.mkdir(parents=True, exist_ok=True)
     else:
-        from datetime import datetime
-
-        ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-
         default_results_dir = Path("/content/drive/MyDrive/T5/results")
         results_dir = default_results_dir if default_results_dir.parent.exists() or is_colab() else (project_root / "results")
         results_dir.mkdir(parents=True, exist_ok=True)
-        out_path = results_dir / f"validate_{ts}.json"
+        out_path = results_dir / f"validate_{run_ts}.json"
 
     out_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     print("\nWrote:", out_path)
