@@ -1,0 +1,20 @@
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "Explaim SAML in three bullets"
+    },
+    {
+      "role": "assistant",
+      "content": "- **SAML (Security Assertion Markup Language)** is an XML-based standard for exchanging authentication and authorization data between parties.  \n- It enables **Single Sign-On (SSO)** by allowing an Identity Provider (IdP) to authenticate users and pass assertions to a Service Provider (SP).  \n- It improves security by **centralizing authentication** and avoiding direct password sharing with applications."
+    },
+    {
+      "role": "user",
+      "content": "Explain SAML in three bullets. reply in serbian latin"
+    },
+    {
+      "role": "assistant",
+      "content": "- **SAML (Security Assertion Markup Language)** je standard za bezbednu razmenu podataka o autentifikaciji i autorizaciji između sistema.  \n- Omogućava **Single Sign-On (SSO)** – korisnik se jednom prijavi i pristupa više aplikacija bez ponovnog logovanja.  \n- Zasniva se na **XML porukama** koje razmenjuju Identity Provider (IdP) i Service Provider (SP)."
+    }
+  ]
+}

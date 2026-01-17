@@ -1,0 +1,21 @@
+{
+  "system": "You are a helpful assistant.",
+  "messages": [
+    {
+      "role": "user",
+      "content": "My name is Marko. Remember it for the next question."
+    },
+    {
+      "role": "assistant",
+      "content": "Got it, Marko. I’ll remember your name for the next question."
+    },
+    {
+      "role": "user",
+      "content": "What is my name?"
+    },
+    {
+      "role": "assistant",
+      "content": "Your name is **Marko**."
+    }
+  ]
+}

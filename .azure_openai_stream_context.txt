@@ -1,0 +1,3 @@
+- Prefers concise, bullet-point explanations (e.g., three bullets).
+- May request responses in **Serbian (Latin script)** and expects the language to be followed when specified.
+- Asks about technical topics like authentication/SSO (e.g., SAML).

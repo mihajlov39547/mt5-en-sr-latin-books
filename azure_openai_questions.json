@@ -1,0 +1,15 @@
+{
+  "basic": {
+    "question": "Give a one-sentence definition of a transformer model."
+  },
+  "multiturn": {
+    "questions": [
+      "My name is Marko. Remember it for the next question.",
+      "What is my name?"
+    ]
+  },
+  "stream": {
+    "context": "Answer in Serbian, concise.",
+    "question": "Explain what an Azure OpenAI deployment is."
+  }
+}
